@@ -720,7 +720,11 @@ static int get_futex_value_locked(u32 *dest, u32 __user *from)
 	int ret;
 
 	pagefault_disable();
+#ifdef CONFIG_SAFEFETCH
+	ret = __get_user_no_dfcache(*dest, from);
+#else
 	ret = __get_user(*dest, from);
+#endif
 	pagefault_enable();
 
 	return ret ? -EFAULT : 0;
@@ -1998,8 +2002,11 @@ retry_private:
 		if (unlikely(ret)) {
 			double_unlock_hb(hb1, hb2);
 			hb_waiters_dec(hb2);
-
+#ifdef CONFIG_SAFEFETCH
+			ret = get_user_no_dfcache(curval, uaddr1);
+#else
 			ret = get_user(curval, uaddr1);
+#endif
 			if (ret)
 				return ret;
 
@@ -2661,8 +2668,11 @@ retry_private:
 
 	if (ret) {
 		queue_unlock(*hb);
-
-		ret = get_user(uval, uaddr);
+#ifdef CONFIG_SAFEFETCH
+	        ret = get_user_no_dfcache(uval, uaddr);
+#else
+	        ret = get_user(uval, uaddr);
+#endif
 		if (ret)
 			return ret;
 
@@ -2954,8 +2964,14 @@ static int futex_unlock_pi(u32 __user *uaddr, unsigned int flags)
 		return -ENOSYS;
 
 retry:
+#ifdef CONFIG_SAFEFETCH
+	if (get_user_no_dfcache(uval, uaddr))
+		return -EFAULT;
+#else
 	if (get_user(uval, uaddr))
 		return -EFAULT;
+#endif
+
 	/*
 	 * We release only a lock we actually own:
 	 */
@@ -3412,8 +3428,13 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
 		return -1;
 
 retry:
+#ifdef CONFIG_SAFEFETCH
+	if (get_user_no_dfcache(uval, uaddr))
+		return -1;
+#else
 	if (get_user(uval, uaddr))
 		return -1;
+#endif
 
 	/*
 	 * Special case for regular (non PI) futexes. The unlock path in

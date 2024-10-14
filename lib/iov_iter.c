@@ -150,16 +150,41 @@ static int copyout(void __user *to, const void *from, size_t n)
 	return n;
 }
 
+#ifndef PIN_BUDDY_PAGES_WATERMARK
+#define PIN_BUDDY_PAGES_WATERMARK PAGE_SIZE
+#endif
+
 static int copyin(void *to, const void __user *from, size_t n)
 {
 	if (should_fail_usercopy())
 		return n;
 	if (access_ok(from, n)) {
 		instrument_copy_from_user(to, from, n);
+#ifdef SAFEFETCH_PIN_BUDDY_PAGES
+                #warning "Using Page_pinning for copyin calls"
+                if (n >= PIN_BUDDY_PAGES_WATERMARK)
+                   n = raw_copy_from_user_pinning(to, from, n);
+                else
+                   n = raw_copy_from_user(to, from, n);
+#else
 		n = raw_copy_from_user(to, from, n);
+#endif
 	}
 	return n;
 }
+
+#ifdef CONFIG_SAFEFETCH
+static int copyin_no_dfcache(void *to, const void __user *from, size_t n)
+{
+	if (should_fail_usercopy())
+		return n;
+	if (access_ok(from, n)) {
+		instrument_copy_from_user(to, from, n);
+		n = raw_copy_from_user_no_dfcache(to, from, n);
+	}
+	return n;
+}
+#endif
 
 static size_t copy_page_to_iter_iovec(struct page *page, size_t offset, size_t bytes,
 			 struct iov_iter *i)

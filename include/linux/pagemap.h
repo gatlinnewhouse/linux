@@ -736,15 +736,24 @@ static inline int fault_in_pages_readable(const char __user *uaddr, int size)
 		return -EFAULT;
 
 	do {
+#if defined(CONFIG_SAFEFETCH) && !defined(SAFEFETCH_PROTECT_PAGES_READABLE)
+		if (unlikely(__get_user_no_dfcache(c, uaddr) != 0))
+			return -EFAULT;
+#else
 		if (unlikely(__get_user(c, uaddr) != 0))
 			return -EFAULT;
+#endif
 		uaddr += PAGE_SIZE;
 	} while (uaddr <= end);
 
 	/* Check whether the range spilled into the next page. */
 	if (((unsigned long)uaddr & PAGE_MASK) ==
 			((unsigned long)end & PAGE_MASK)) {
+#if defined(CONFIG_SAFEFETCH) && !defined(SAFEFETCH_PROTECT_PAGES_READABLE)
+		return __get_user_no_dfcache(c, end);
+#else
 		return __get_user(c, end);
+#endif
 	}
 
 	(void)c;

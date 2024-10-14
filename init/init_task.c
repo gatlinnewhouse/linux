@@ -15,6 +15,10 @@
 
 #include <linux/uaccess.h>
 
+#ifdef CONFIG_SAFEFETCH
+#include <linux/safefetch.h>
+#endif
+
 static struct signal_struct init_signals = {
 	.nr_threads	= 1,
 	.thread_head	= LIST_HEAD_INIT(init_task.thread_node),
@@ -212,6 +216,13 @@ struct task_struct init_task
 #endif
 #ifdef CONFIG_SECCOMP
 	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
+#endif
+#ifdef CONFIG_SAFEFETCH
+#ifndef SAFEFETCH_MEASURE_DEFENSE
+        .df_prot_struct_head = {  .df_mem_range_allocator = { .initialized = 0 }, .df_metadata_allocator = {.first = 0, .initialized = 0, .extended = 0}, .df_storage_allocator = {.first = 0, .initialized = 0, .extended = 0}},
+#else
+       .df_prot_struct_head = {  .df_mem_range_allocator = { .initialized = 0 }, .df_metadata_allocator = {.first = 0, .initialized = 0, .extended = 0}, .df_storage_allocator = {.first = 0, .initialized = 0, .extended = 0}, .df_measures = {.search_time = 0, .insert_time = 0, .counter = 0}},
+#endif
 #endif
 };
 EXPORT_SYMBOL(init_task);

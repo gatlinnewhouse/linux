@@ -390,6 +390,10 @@ void irq_enter_rcu(void)
  */
 void irq_enter(void)
 {
+#ifdef SAFEFETCH_DEBUG
+        #warning IRQ_DEFENSE
+        current->df_stats.in_irq = 1;
+#endif
 	rcu_irq_enter();
 	irq_enter_rcu();
 }
@@ -444,7 +448,11 @@ void irq_exit(void)
 	__irq_exit_rcu();
 	rcu_irq_exit();
 	 /* must be last! */
+#ifdef SAFEFETCH_DEBUG
+        current->df_stats.in_irq = 0;
+#endif
 	lockdep_hardirq_exit();
+
 }
 
 /*

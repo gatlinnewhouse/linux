@@ -37,6 +37,10 @@
 #include <linux/kcsan.h>
 #include <asm/kmap_size.h>
 
+#ifdef CONFIG_SAFEFETCH
+#include <linux/safefetch.h>
+#endif
+
 /* task_struct member predeclarations (sorted alphabetically): */
 struct audit_context;
 struct backing_dev_info;
@@ -1367,6 +1371,14 @@ struct task_struct {
 #ifdef CONFIG_KRETPROBES
 	struct llist_head               kretprobe_instances;
 #endif
+
+#ifdef CONFIG_SAFEFETCH
+        struct df_prot_struct df_prot_struct_head;
+#ifdef SAFEFETCH_DEBUG
+        struct df_stats_struct df_stats;
+#endif
+#endif
+
 
 	/*
 	 * New fields for task_struct should be added above here, so that

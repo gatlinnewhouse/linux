@@ -108,6 +108,12 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/task.h>
 
+#ifdef CONFIG_SAFEFETCH
+#include <linux/safefetch.h>
+#include <linux/safefetch_static_keys.h>
+#include <linux/mem_range.h>
+#endif
+
 /*
  * Minimum number of threads to boot the kernel
  */
@@ -945,7 +951,18 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 #ifdef CONFIG_MEMCG
 	tsk->active_memcg = NULL;
 #endif
-	return tsk;
+
+#ifdef CONFIG_SAFEFETCH
+       IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key){
+        df_task_dup(tsk);
+       }
+#ifdef SAFEFETCH_DEBUG
+       WARN_ON(SAFEFETCH_TASK_MEM_RANGE_INIT_FLAG(tsk));
+       WARN_ON(tsk->df_prot_struct_head.df_metadata_allocator.extended);
+       WARN_ON(tsk->df_prot_struct_head.df_storage_allocator.extended);
+#endif
+#endif
+       return tsk;
 
 free_stack:
 	free_thread_stack(tsk);
