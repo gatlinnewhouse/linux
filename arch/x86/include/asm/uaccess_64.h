@@ -46,11 +46,67 @@ copy_user_generic(void *to, const void *from, unsigned len)
 	return ret;
 }
 
+#ifdef CONFIG_SAFEFETCH
+#include <linux/safefetch.h>
+
+#ifdef SAFEFETCH_STATIC_KEYS
+#include <linux/safefetch_static_keys.h>
 static __always_inline __must_check unsigned long
 raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
 {
-	return copy_user_generic(dst, (__force void *)src, size);
+   if (static_branch_unlikely(&safefetch_copy_from_user_key)) {
+      // Insert user data into protection mechanism and then into the kernel destination
+      return df_copy_from_user((unsigned long long)src, (unsigned long long)dst, size);
+   } 
+   else {
+      return copy_user_generic(dst, (__force void *)src, size);
+   }
 }
+#else
+static __always_inline __must_check unsigned long
+raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
+{
+    // Insert user data into protection mechanism and then into the kernel destination
+    return df_copy_from_user((unsigned long long)src, (unsigned long long)dst, size);
+}
+#endif
+
+#ifdef SAFEFETCH_PIN_BUDDY_PAGES
+#ifdef SAFEFETCH_STATIC_KEYS
+#include <linux/safefetch_static_keys.h>
+static __always_inline __must_check unsigned long
+raw_copy_from_user_pinning(void *dst, const void __user *src, unsigned long size)
+{
+   if (static_branch_unlikely(&safefetch_copy_from_user_key)) {
+      // Insert user data into protection mechanism and then into the kernel destination
+      return df_copy_from_user_pinning((unsigned long long)src, (unsigned long long)dst, size);
+   } 
+   else {
+      return copy_user_generic(dst, (__force void *)src, size);
+   }
+}
+#else
+static __always_inline __must_check unsigned long
+raw_copy_from_user_pinning(void *dst, const void __user *src, unsigned long size)
+{
+    // Insert user data into protection mechanism and then into the kernel destination
+    return df_copy_from_user_pinning((unsigned long long)src, (unsigned long long)dst, size);
+}
+#endif
+#endif
+
+static __always_inline __must_check unsigned long
+raw_copy_from_user_no_dfcache(void *dst, const void __user *src, unsigned long size)
+{
+    return copy_user_generic(dst, (__force void *)src, size);
+}
+#else
+static __always_inline __must_check unsigned long
+raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
+{
+    return copy_user_generic(dst, (__force void *)src, size);
+}
+#endif
 
 static __always_inline __must_check unsigned long
 raw_copy_to_user(void __user *dst, const void *src, unsigned long size)

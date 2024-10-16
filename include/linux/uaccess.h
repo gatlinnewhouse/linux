@@ -162,9 +162,29 @@ _copy_from_user(void *to, const void __user *from, unsigned long n)
 		memset(to + (n - res), 0, res);
 	return res;
 }
+#ifdef CONFIG_SAFEFETCH
+static inline __must_check unsigned long
+_copy_from_user_no_dfcache(void *to, const void __user *from, unsigned long n)
+{
+	unsigned long res = n;
+	might_fault();
+	if (!should_fail_usercopy() && likely(access_ok(from, n))) {
+		instrument_copy_from_user(to, from, n);
+		res = raw_copy_from_user_no_dfcache(to, from, n);
+	}
+	if (unlikely(res))
+		memset(to + (n - res), 0, res);
+	return res;
+}
+#endif
+
 #else
 extern __must_check unsigned long
 _copy_from_user(void *, const void __user *, unsigned long);
+#ifdef CONFIG_SAFEFETCH
+extern __must_check unsigned long
+_copy_from_user_no_dfcache(void *, const void __user *, unsigned long);
+#endif
 #endif
 
 #ifdef INLINE_COPY_TO_USER
@@ -192,6 +212,16 @@ copy_from_user(void *to, const void __user *from, unsigned long n)
 		n = _copy_from_user(to, from, n);
 	return n;
 }
+
+#ifdef CONFIG_SAFEFETCH
+static __always_inline unsigned long __must_check
+copy_from_user_no_dfcache(void *to, const void __user *from, unsigned long n)
+{
+	if (likely(check_copy_size(to, n, false)))
+		n = _copy_from_user_no_dfcache(to, from, n);
+	return n;
+}
+#endif
 
 static __always_inline unsigned long __must_check
 copy_to_user(void __user *to, const void *from, unsigned long n)
