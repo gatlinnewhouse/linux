@@ -811,6 +811,23 @@ void __noreturn do_exit(long code)
 
 	exit_mm();
 
+#ifdef CONFIG_SAFEFETCH
+        #include <linux/safefetch.h>
+        #include <linux/region_allocator.h>
+        #include <linux/safefetch_static_keys.h>
+//        if (!(tsk->flags & PF_KTHREAD))
+//        df_task_destroy(tsk);
+        IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key){
+        if (!(tsk->flags & PF_KTHREAD)){
+           destroy_regions();
+#ifdef SAFEFETCH_DEBUG
+           df_debug_task_destroy(tsk);
+#endif
+         }
+        }
+           
+#endif
+
 	if (group_dead)
 		acct_process();
 	trace_sched_process_exit(tsk);
