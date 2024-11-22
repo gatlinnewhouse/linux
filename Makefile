@@ -2,8 +2,8 @@
 VERSION = 5
 PATCHLEVEL = 14
 SUBLEVEL = 0
-EXTRAVERSION =
 NAME = Opossums on Parade
+EXTRAVERSION = -safefetch
 
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
@@ -1030,6 +1030,7 @@ include-$(CONFIG_KASAN)		+= scripts/Makefile.kasan
 include-$(CONFIG_KCSAN)		+= scripts/Makefile.kcsan
 include-$(CONFIG_UBSAN)		+= scripts/Makefile.ubsan
 include-$(CONFIG_KCOV)		+= scripts/Makefile.kcov
+include-$(CONFIG_SAFEFETCH)	+= scripts/Makefile.safefetch
 include-$(CONFIG_GCC_PLUGINS)	+= scripts/Makefile.gcc-plugins
 
 include $(addprefix $(srctree)/, $(include-y))
