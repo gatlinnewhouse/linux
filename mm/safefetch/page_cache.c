@@ -40,7 +40,7 @@ static void fixup_in_tranzit_regions(void){
              usleep_range(10, 20);
              wait_time++;
              if (wait_time >= MAX_WAIT_FIXUP) {
-                 state = READ_ONCE(process->state);
+                 state = READ_ONCE(process->__state);
                  // Who'se the hogging task and why?
                  printk(KERN_WARNING"Waited but task %s did not finish [%d %d %d %d %d 0x%x]", process->comm, 
                                                                                        state & TASK_INTERRUPTIBLE,
