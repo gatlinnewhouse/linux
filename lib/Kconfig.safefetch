@@ -1,0 +1,20 @@
+config HAVE_ARCH_SAFEFETCH
+  bool
+
+if HAVE_ARCH_SAFEFETCH
+
+config SAFEFETCH
+  bool "Safefetch : double fetch monitoring for copy_from_user/get_user calls"
+  select SAFEFETCH_STATIC_KEYS
+  default n
+
+config SAFEFETCH_STATIC_KEYS
+  bool "Safefetch : static keys safefetch"
+  depends on SAFEFETCH
+  default y
+
+config SAFEFETCH_DEBUG
+  bool "Safefetch : double fetch debugging layer"
+  default n
+
+endif
