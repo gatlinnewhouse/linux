@@ -939,13 +939,6 @@ void check_pins(){
 
 #else 
 // NOTES: Adaptive implementation hooks.
-
-// Just add this functionality from a newer kernel version
-static inline int list_is_head(const struct list_head *list, const struct list_head *head)
-{
-	return list == head;
-}
-
 #define CONVERT_LIMIT SAFEFETCH_ADAPTIVE_WATERMARK + 1
 
 noinline void convert_to_rbtree(uint8_t nelem){
