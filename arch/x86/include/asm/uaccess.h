@@ -230,6 +230,7 @@ extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val
 
 #define __get_user_no_dfcache(x,ptr) do_get_user_call_no_dfcache(get_user_nocheck,x,ptr)
 
+#define unsafe_op_wrap(op, err) do { if (unlikely(op)) goto err; } while (0)
 #define unsafe_get_user_no_dfcache(x,p,e) unsafe_op_wrap(__get_user_no_dfcache(x,p),e)
 
 #else
