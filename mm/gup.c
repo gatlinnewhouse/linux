@@ -1756,27 +1756,6 @@ size_t fault_in_safe_writeable(const char __user *uaddr, size_t size)
 }
 EXPORT_SYMBOL(fault_in_safe_writeable);
 
-/** SAFEFETCH patches from v5.15, unsure if they go in fn below
-#if defined(CONFIG_SAFEFETCH) && !defined(SAFEFETCH_PROTECT_PAGES_READABLE)
-		if (unlikely(__get_user_no_dfcache(c, uaddr) != 0))
-			return -EFAULT;
-#else
-		if (unlikely(__get_user(c, uaddr) != 0))
-			return -EFAULT;
-#endif
-		uaddr += PAGE_SIZE;
-	} while (uaddr <= end);
-
-	// Check whether the range spilled into the next page.
-	if (((unsigned long)uaddr & PAGE_MASK) ==
-			((unsigned long)end & PAGE_MASK)) {
-#if defined(CONFIG_SAFEFETCH) && !defined(SAFEFETCH_PROTECT_PAGES_READABLE)
-		return __get_user_no_dfcache(c, end);
-#else
-		return __get_user(c, end);
-#endif
-*/
-
 /**
  * fault_in_readable - fault in userspace address range for reading
  * @uaddr: start of user address range
@@ -1793,16 +1772,26 @@ size_t fault_in_readable(const char __user *uaddr, size_t size)
 	if (unlikely(size == 0))
 		return 0;
 	if (!PAGE_ALIGNED(uaddr)) {
+#if defined(CONFIG_SAFEFETCH) && !defined(SAFEFETCH_PROTECT_PAGES_READABLE)
+		if (unlikely(__get_user_no_dfcache(c, uaddr) != 0))
+			return size;
+#else
 		if (unlikely(__get_user(c, uaddr) != 0))
 			return size;
+#endif
 		uaddr = (const char __user *)PAGE_ALIGN((unsigned long)uaddr);
 	}
 	end = (const char __user *)PAGE_ALIGN((unsigned long)start + size);
 	if (unlikely(end < start))
 		end = NULL;
 	while (uaddr != end) {
+#if defined(CONFIG_SAFEFETCH) && !defined(SAFEFETCH_PROTECT_PAGES_READABLE)
+		if (unlikely(__get_user_no_dfcache(c, uaddr) != 0))
+			goto out;
+#else
 		if (unlikely(__get_user(c, uaddr) != 0))
 			goto out;
+#endif
 		uaddr += PAGE_SIZE;
 	}
 
