@@ -1109,8 +1109,13 @@ int futex_unlock_pi(u32 __user *uaddr, unsigned int flags)
 		return -ENOSYS;
 
 retry:
+#ifdef CONFIG_SAFEFETCH
+	if (get_user_no_dfcache(uval, uaddr))
+		return -EFAULT;
+#else
 	if (get_user(uval, uaddr))
 		return -EFAULT;
+#endif
 	/*
 	 * We release only a lock we actually own:
 	 */
