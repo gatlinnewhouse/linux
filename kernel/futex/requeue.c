@@ -454,8 +454,11 @@ retry_private:
 		if (unlikely(ret)) {
 			double_unlock_hb(hb1, hb2);
 			futex_hb_waiters_dec(hb2);
-
+#ifdef CONFIG_SAFEFETCH
+			ret = get_user_no_dfcache(curval, uaddr1);
+#else
 			ret = get_user(curval, uaddr1);
+#endif
 			if (ret)
 				return ret;
 
