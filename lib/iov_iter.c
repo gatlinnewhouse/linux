@@ -172,6 +172,10 @@ static int copyout(void __user *to, const void *from, size_t n)
 	return n;
 }
 
+#ifndef PIN_BUDDY_PAGES_WATERMARK
+#define PIN_BUDDY_PAGES_WATERMARK PAGE_SIZE
+#endif
+
 static int copyin(void *to, const void __user *from, size_t n)
 {
 	size_t res = n;
@@ -180,11 +184,34 @@ static int copyin(void *to, const void __user *from, size_t n)
 		return n;
 	if (access_ok(from, n)) {
 		instrument_copy_from_user_before(to, from, n);
+#ifdef SAFEFETCH_PIN_BUDDY_PAGES
+                #warning "Using Page_pinning for copyin calls"
+                if (n >= PIN_BUDDY_PAGES_WATERMARK)
+                   res = raw_copy_from_user_pinning(to, from, n);
+                else
+                   res = raw_copy_from_user(to, from, n);
+#else
 		res = raw_copy_from_user(to, from, n);
+#endif
 		instrument_copy_from_user_after(to, from, n, res);
 	}
 	return res;
 }
+
+#ifdef CONFIG_SAFEFETCH
+static int copyin_no_dfcache(void *to, const void __user *from, size_t n)
+{
+	size_t res = n;
+	if (should_fail_usercopy())
+		return n;
+	if (access_ok(from, n)) {
+		instrument_copy_from_user_before(to, from, n);
+		res = raw_copy_from_user_no_dfcache(to, from, n);
+		instrument_copy_from_user_after(to, from, n, res);
+	}
+	return res;
+}
+#endif
 
 static inline struct pipe_buffer *pipe_buf(const struct pipe_inode_info *pipe,
 					   unsigned int slot)
