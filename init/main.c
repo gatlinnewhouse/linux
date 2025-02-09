@@ -937,6 +937,10 @@ asmlinkage __visible void __init __no_sanitize_address __noreturn start_kernel(v
 	trap_init();
 	mm_core_init();
 	poking_init();
+#ifdef CONFIG_SAFEFETCH
+        #include <linux/safefetch.h>
+        df_startup();
+#endif
 	ftrace_init();
 
 	/* trace_printk can be enabled here */
@@ -1084,10 +1088,16 @@ asmlinkage __visible void __init __no_sanitize_address __noreturn start_kernel(v
 	arch_post_acpi_subsys_init();
 	kcsan_init();
 
+#if defined(SAFEFETCH_DEBUG) || defined(SAFEFETCH_STATIC_KEYS)
+        df_sysfs_init();
+#endif
 	/* Do the rest non-__init'ed, we're now alive */
 	arch_call_rest_init();
 
+
+
 	prevent_tail_call_optimization();
+
 }
 
 /* Call all constructor functions linked into the kernel. */
