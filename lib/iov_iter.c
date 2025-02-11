@@ -59,7 +59,7 @@ size_t copy_from_user_iter(void __user *iter_from, size_t progress,
 #ifdef SAFEFETCH_PIN_BUDDY_PAGES
                 #warning "Using Page_pinning for copyin calls"
                 if (len >= PIN_BUDDY_PAGES_WATERMARK)
-			res = raw_copy_from_user_pinning(to, from, len);
+			res = raw_copy_from_user_pinning(to, iter_from, len);
                 else
 			res = raw_copy_from_user(to, iter_from, len);
 #else
