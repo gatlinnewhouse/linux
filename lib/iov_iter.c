@@ -41,6 +41,10 @@ size_t copy_to_user_iter_nofault(void __user *iter_to, size_t progress,
 	return res < 0 ? len : res;
 }
 
+#ifndef PIN_BUDDY_PAGES_WATERMARK
+#define PIN_BUDDY_PAGES_WATERMARK PAGE_SIZE
+#endif
+
 static __always_inline
 size_t copy_from_user_iter(void __user *iter_from, size_t progress,
 			   size_t len, void *to, void *priv2)
@@ -52,11 +56,34 @@ size_t copy_from_user_iter(void __user *iter_from, size_t progress,
 	if (access_ok(iter_from, len)) {
 		to += progress;
 		instrument_copy_from_user_before(to, iter_from, len);
+#ifdef SAFEFETCH_PIN_BUDDY_PAGES
+                #warning "Using Page_pinning for copyin calls"
+                if (len >= PIN_BUDDY_PAGES_WATERMARK)
+			res = raw_copy_from_user_pinning(to, from, len);
+                else
+			res = raw_copy_from_user(to, iter_from, len);
+#else
 		res = raw_copy_from_user(to, iter_from, len);
+#endif
 		instrument_copy_from_user_after(to, iter_from, len, res);
 	}
 	return res;
 }
+
+#ifdef CONFIG_SAFEFETCH
+static int copyin_no_dfcache(void *to, const void __user *from, size_t n)
+{
+	size_t res = n;
+	if (should_fail_usercopy())
+		return n;
+	if (access_ok(from, n)) {
+		instrument_copy_from_user_before(to, from, n);
+		res = raw_copy_from_user_no_dfcache(to, from, n);
+		instrument_copy_from_user_after(to, from, n, res);
+	}
+	return res;
+}
+#endif
 
 static __always_inline
 size_t memcpy_to_iter(void *iter_to, size_t progress,
