@@ -440,6 +440,12 @@ static int ioctl_file_dedupe_range(struct file *file,
 		goto out;
 	}
 
+	// Add an extra check before the bug fix to check whether a double-fetch occured
+	// With SafeFetch enabled this check will never get triggered because we correct
+	// the second fetch from the cache.
+	if (same->dest_count != count){
+		pr_warn("[Bug-Warning] Bug triggered\n");
+	}
 	same->dest_count = count;
 	ret = vfs_dedupe_file_range(file, same);
 	if (ret)

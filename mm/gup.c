@@ -1987,14 +1987,22 @@ size_t fault_in_readable(const char __user *uaddr, size_t size)
 	if (!user_read_access_begin(uaddr, size))
 		return size;
 	if (!PAGE_ALIGNED(uaddr)) {
+#if defined(CONFIG_SAFEFETCH) && !defined(SAFEFETCH_PROTECT_PAGES_READABLE)
+		unsafe_get_user_no_dfcache(c, uaddr, out);
+#else
 		unsafe_get_user(c, uaddr, out);
+#endif
 		uaddr = (const char __user *)PAGE_ALIGN((unsigned long)uaddr);
 	}
 	end = (const char __user *)PAGE_ALIGN((unsigned long)start + size);
 	if (unlikely(end < start))
 		end = NULL;
 	while (uaddr != end) {
+#if defined(CONFIG_SAFEFETCH) && !defined(SAFEFETCH_PROTECT_PAGES_READABLE)
+		unsafe_get_user_no_dfcache(c, uaddr, out);
+#else
 		unsafe_get_user(c, uaddr, out);
+#endif
 		uaddr += PAGE_SIZE;
 	}
 
