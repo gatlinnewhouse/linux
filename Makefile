@@ -2,8 +2,8 @@
 VERSION = 6
 PATCHLEVEL = 10
 SUBLEVEL = 0
-EXTRAVERSION =
 NAME = Baby Opossum Posse
+EXTRAVERSION = -safefetch
 
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
@@ -1023,6 +1023,7 @@ include-$(CONFIG_KMSAN)		+= scripts/Makefile.kmsan
 include-$(CONFIG_UBSAN)		+= scripts/Makefile.ubsan
 include-$(CONFIG_KCOV)		+= scripts/Makefile.kcov
 include-$(CONFIG_RANDSTRUCT)	+= scripts/Makefile.randstruct
+include-$(CONFIG_SAFEFETCH)	+= scripts/Makefile.safefetch
 include-$(CONFIG_GCC_PLUGINS)	+= scripts/Makefile.gcc-plugins
 
 include $(addprefix $(srctree)/, $(include-y))
