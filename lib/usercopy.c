@@ -18,6 +18,22 @@ unsigned long _copy_from_user(void *to, const void __user *from, unsigned long n
 	return _inline_copy_from_user(to, from, n);
 }
 EXPORT_SYMBOL(_copy_from_user);
+#ifdef CONFIG_SAFEFETCH
+unsigned long _copy_from_user_no_dfcache(void *to, const void __user *from, unsigned long n)
+{
+	unsigned long res = n;
+	might_fault();
+	if (!should_fail_usercopy() && likely(access_ok(from, n))) {
+		instrument_copy_from_user_before(to, from, n);
+		res = raw_copy_from_user_no_dfcache(to, from, n);
+		instrument_copy_from_user_after(to, from, n, res);
+	}
+	if (unlikely(res))
+		memset(to + (n - res), 0, res);
+	return res;
+}
+EXPORT_SYMBOL(_copy_from_user_no_dfcache);
+#endif
 #endif
 
 #if !defined(INLINE_COPY_TO_USER) || defined(CONFIG_RUST)
