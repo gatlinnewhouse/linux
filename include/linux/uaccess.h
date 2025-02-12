@@ -147,6 +147,7 @@ __copy_to_user(void __user *to, const void *from, unsigned long n)
  *
  * Rust code always uses the extern definition.
  */
+#if !defined(INLINE_COPY_FROM_USER) || defined(CONFIG_RUST)
 static inline __must_check unsigned long
 _inline_copy_from_user(void *to, const void __user *from, unsigned long n)
 {
@@ -167,7 +168,6 @@ _inline_copy_from_user(void *to, const void __user *from, unsigned long n)
 		memset(to + (n - res), 0, res);
 	return res;
 }
-
 #ifdef CONFIG_SAFEFETCH
 static inline __must_check unsigned long
 _copy_from_user_no_dfcache(void *to, const void __user *from, unsigned long n)
@@ -185,12 +185,13 @@ _copy_from_user_no_dfcache(void *to, const void __user *from, unsigned long n)
 }
 #endif
 
+#else
 extern __must_check unsigned long
 _copy_from_user(void *, const void __user *, unsigned long);
-
 #ifdef CONFIG_SAFEFETCH
 extern __must_check unsigned long
 _copy_from_user_no_dfcache(void *, const void __user *, unsigned long);
+#endif
 #endif
 
 static inline __must_check unsigned long
