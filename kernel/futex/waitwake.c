@@ -625,8 +625,11 @@ retry_private:
 
 	if (ret) {
 		futex_q_unlock(*hb);
-
+#ifdef CONFIG_SAFEFETCH
+		ret = get_user_no_dfcache(uval, uaddr);
+#else
 		ret = get_user(uval, uaddr);
+#endif
 		if (ret)
 			return ret;
 

@@ -186,6 +186,11 @@ fail:
 extern __must_check unsigned long
 _copy_from_user(void *, const void __user *, unsigned long);
 
+#ifdef CONFIG_SAFEFETCH
+extern __must_check unsigned long
+_copy_from_user_no_dfcache(void *, const void __user *, unsigned long);
+#endif
+
 static inline __must_check unsigned long
 _inline_copy_to_user(void __user *to, const void *from, unsigned long n)
 {
@@ -212,6 +217,16 @@ copy_from_user(void *to, const void __user *from, unsigned long n)
 	return _copy_from_user(to, from, n);
 #endif
 }
+
+#ifdef CONFIG_SAFEFETCH
+static __always_inline unsigned long __must_check
+copy_from_user_no_dfcache(void *to, const void __user *from, unsigned long n)
+{
+	if (likely(check_copy_size(to, n, false)))
+		n = _copy_from_user_no_dfcache(to, from, n);
+	return n;
+}
+#endif
 
 static __always_inline unsigned long __must_check
 copy_to_user(void __user *to, const void *from, unsigned long n)
