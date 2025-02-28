@@ -451,6 +451,32 @@ struct futex_q *futex_top_waiter(struct futex_hash_bucket *hb, union futex_key *
 	return NULL;
 }
 
+int futex_cmpxchg_value_locked(u32 *curval, u32 __user *uaddr, u32 uval, u32 newval)
+{
+	int ret;
+
+	pagefault_disable();
+	ret = futex_atomic_cmpxchg_inatomic(curval, uaddr, uval, newval);
+	pagefault_enable();
+
+	return ret;
+}
+
+int futex_get_value_locked(u32 *dest, u32 __user *from)
+{
+	int ret;
+
+	pagefault_disable();
+#ifdef CONFIG_SAFEFETCH
+	ret = __get_user_no_dfcache(*dest, from);
+#else
+	ret = __get_user(*dest, from);
+#endif
+	pagefault_enable();
+
+	return ret ? -EFAULT : 0;
+}
+
 /**
  * wait_for_owner_exiting - Block until the owner has exited
  * @ret: owner's current futex lock status
@@ -647,8 +673,13 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
 		return -1;
 
 retry:
+#ifdef CONFIG_SAFEFETCH
+	if (get_user_no_dfcache(uval, uaddr))
+		return -1;
+#else
 	if (get_user(uval, uaddr))
 		return -1;
+#endif
 
 	/*
 	 * Special case for regular (non PI) futexes. The unlock path in
