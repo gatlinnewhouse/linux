@@ -171,6 +171,20 @@ extern __must_check unsigned long
 _copy_from_user(void *, const void __user *, unsigned long);
 
 #ifdef CONFIG_SAFEFETCH
+static inline __must_check unsigned long
+_copy_from_user_no_dfcache(void *to, const void __user *from, unsigned long n)
+{
+	unsigned long res = n;
+	might_fault();
+	if (!should_fail_usercopy() && likely(access_ok(from, n))) {
+		instrument_copy_from_user_before(to, from, n);
+		res = raw_copy_from_user_no_dfcache(to, from, n);
+		instrument_copy_from_user_after(to, from, n, res);
+	}
+	if (unlikely(res))
+		memset(to + (n - res), 0, res);
+	return res;
+}
 extern __must_check unsigned long
 _copy_from_user_no_dfcache(void *, const void __user *, unsigned long);
 #endif
