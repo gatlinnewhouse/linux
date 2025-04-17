@@ -264,7 +264,11 @@ static __always_inline int futex_read_inatomic(u32 *dest, u32 __user *from)
 		from = masked_user_access_begin(from);
 	else if (!user_read_access_begin(from, sizeof(*from)))
 		return -EFAULT;
+#ifdef CONFIG_SAFEFETCH
+	unsafe_get_user_no_dfcache(val, from, Efault);
+#else
 	unsafe_get_user(val, from, Efault);
+#endif
 	user_read_access_end();
 	*dest = val;
 	return 0;
