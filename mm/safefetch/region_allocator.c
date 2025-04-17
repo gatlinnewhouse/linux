@@ -1,6 +1,7 @@
 //#include <linux/region_allocator.h>
 #include "page_cache.h"
 #include <linux/mem_range.h>
+#include <linux/page_frag_cache.h>
 #include "safefetch_debug.h"
 
 #ifdef SAFEFETCH_MEASURE_MEMORY_CONSUMPTION
