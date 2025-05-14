@@ -215,11 +215,6 @@ void df_debug_syscall_entry(int sys_nr, struct pt_regs *regs){
 // Calling location: arch/x86/entry/common.c:do_syscall_64()
 // Return: None
 void df_debug_syscall_exit(void){
-   int dranges, mranges, dkmalloc;
-   int rsize;
-   uint64_t avg_size;
-   size_t max;
-
    if (current->df_stats.pending == PENDING_RESTART){
        current->df_stats.pending = PENDING_RESTART_DELIVERED;
    }
