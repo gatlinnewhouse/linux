@@ -78,11 +78,16 @@ extern int __get_user_bad(void);
 #include <linux/safefetch.h>
 #include <linux/safefetch_static_keys.h>
 
-extern int df_get_user1(unsigned long long user_src, unsigned char user_val, unsigned long long kern_dst);
-extern int df_get_user2(unsigned long long user_src, unsigned short user_val, unsigned long long kern_dst);
-extern int df_get_user4(unsigned long long user_src, unsigned int user_val, unsigned long long kern_dst);
-extern int df_get_user8(unsigned long long user_src, unsigned long user_val, unsigned long long kern_dst);
-extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val, unsigned long long kern_dst);
+extern int df_get_user1(unsigned long long user_src, unsigned char user_val,
+			unsigned long long kern_dst);
+extern int df_get_user2(unsigned long long user_src, unsigned short user_val,
+			unsigned long long kern_dst);
+extern int df_get_user4(unsigned long long user_src, unsigned int user_val,
+			unsigned long long kern_dst);
+extern int df_get_user8(unsigned long long user_src, unsigned long user_val,
+			unsigned long long kern_dst);
+extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val,
+			 unsigned long long kern_dst);
 
 // This macro returns the smallest possible get_user function based on value x
 #define __dfgetuserfunc(x)                                                  \

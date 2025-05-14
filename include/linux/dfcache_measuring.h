@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /* source for TSC measurement code:
  * https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/ia-32-ia-64-benchmark-code-execution-paper.pdf
  */
@@ -23,8 +24,9 @@
 #define MAKESTRING2(x) #x
 #define MAKESTRING(x) MAKESTRING2(x)
 
-static int64_t make_int64(uint32_t high, uint32_t low) {
-  return (((int64_t) high) << 32) | (int64_t) low;
+static int64_t make_int64(uint32_t high, uint32_t low)
+{
+	return (((int64_t) high) << 32) | (int64_t) low;
 }
 
 

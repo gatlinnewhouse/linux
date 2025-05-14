@@ -2,17 +2,17 @@
 #define __REGION_ALLOCATOR_H__
 
 struct region_allocator {
-   struct mem_region *first; // First region in the allocator.
-   size_t region_size; // Default Region Allocator bytes
-   struct kmem_cache *cache;  // default cache used for allocations.
-   struct list_head extra_ranges; // All extra ranges (apart from the first)
-   struct list_head free_ranges;  // A list containing only those extra ranges that still have some bytes.
+	struct mem_region *first; // First region in the allocator.
+	size_t region_size; // Default Region Allocator bytes
+	struct kmem_cache *cache;  // default cache used for allocations.
+	struct list_head extra_ranges; // All extra ranges (apart from the first)
+	struct list_head free_ranges;  // A list containing only those extra ranges that still have some bytes.
 #ifdef SAFEFETCH_PIN_BUDDY_PAGES
-   struct list_head buddy_pages;
-   unsigned pinning:1;
+	struct list_head buddy_pages;
+	unsigned pinning:1;
 #endif
-   unsigned extended:1; // Does the region based allocator contain more than the preallocated page.
-   unsigned initialized:1; // If the region allocator contains at least the first page.
+	unsigned extended:1; // Does the region based allocator contain more than the preallocated page.
+	unsigned initialized:1; // If the region allocator contains at least the first page.
 };
 
 #define BYTE_GRANULARITY(allocator) allocator->region_size
@@ -26,23 +26,23 @@ struct region_allocator {
 
 
 struct mem_region {
-    unsigned long long ptr; // ptr to the next free byte in the region.
-    size_t remaining;
-    struct list_head extra_ranges; // linked list of all allocated ranges for a range allocator (except the first).
-    struct list_head free_ranges; // linked list of all free ranges.
+	unsigned long long ptr; // ptr to the next free byte in the region.
+	size_t remaining;
+	struct list_head extra_ranges; // linked list of all allocated ranges for a range allocator (except the first).
+	struct list_head free_ranges; // linked list of all free ranges.
 #ifdef SAFEFETCH_MEASURE_MEMORY_CONSUMPTION
-    size_t size;
+	size_t size;
 #endif
-    unsigned is_cached:1;
+	unsigned is_cached:1;
 };
 
 #ifdef SAFEFETCH_PIN_BUDDY_PAGES
 struct mem_pin {
-    void *ptr;
+	void *ptr;
 #ifdef SAFEFETCH_MEASURE_MEMORY_CONSUMPTION
-    size_t size;
+	size_t size;
 #endif
-    struct list_head pin_link;
+	struct list_head pin_link;
 };
 #endif
 
@@ -66,36 +66,35 @@ struct mem_pin {
 
 struct range_allocator {
 #if !defined(SAFEFETCH_RBTREE_MEM_RANGE) && !defined(SAFEFETCH_ADAPTIVE_MEM_RANGE) && !defined(SAFEFETCH_STATIC_KEYS)
-   struct list_head node;
+	struct list_head node;
 #elif defined(SAFEFETCH_RBTREE_MEM_RANGE)
-   struct rb_root node;
+	struct rb_root node;
 #else
-   union {
-       struct list_head ll_node;
-       struct rb_root rb_node;
-    };
+	union {
+		struct list_head ll_node;
+		struct rb_root rb_node;
+	};
 #endif
 #if defined(SAFEFETCH_ADAPTIVE_MEM_RANGE) || defined(SAFEFETCH_STATIC_KEYS)
 #ifndef SAFEFETCH_USE_SHIFT_COUNTER
-   uint8_t ncopies;
+	uint8_t ncopies;
 #else
-   uint64_t ncopies;
+	uint64_t ncopies;
 #endif
-   unsigned adaptive:1;
-#endif 
-   unsigned initialized:1;
-
+	unsigned adaptive:1;
+#endif
+	unsigned initialized:1;
 };
 
 //#define SAFEFETCH_LINKEDLIST_MEM_RANGE
 // Enum that indicates the current state of a memory range structure
 enum overlapping_types {
-    // We returned the previous range after which we should add our cfu range.
-    df_range_previous,
-    // Mem range struct fully contains the copy from user
-    df_range_encapsulates,
-    // Mem range overlaps the copy from user
-    df_range_overlaps
+	// We returned the previous range after which we should add our cfu range.
+	df_range_previous,
+	// Mem range struct fully contains the copy from user
+	df_range_encapsulates,
+	// Mem range overlaps the copy from user
+	df_range_overlaps
 };
 
 
@@ -110,24 +109,24 @@ enum overlapping_types {
  */
 struct mem_range {
 #if  !defined(SAFEFETCH_RBTREE_MEM_RANGE) && !defined(SAFEFETCH_ADAPTIVE_MEM_RANGE) && !defined(SAFEFETCH_STATIC_KEYS)
-    struct list_head node;    
+	struct list_head node;
 #elif defined(SAFEFETCH_RBTREE_MEM_RANGE)
-    struct rb_node node;
+	struct rb_node node;
 #else
-    union {
-       struct list_head ll_node;
-       struct rb_node rb_node;
-    };
+	union {
+		struct list_head ll_node;
+		struct rb_node rb_node;
+	};
 #endif
-    unsigned long long mr_begin;
-    unsigned long long mr_end;
-    void *mr_prot_loc;
+	unsigned long long mr_begin;
+	unsigned long long mr_end;
+	void *mr_prot_loc;
 #if defined(SAFEFETCH_DEBUG) && defined(SAFEFETCH_PIN_BUDDY_PAGES) && defined(SAFEFETCH_DEBUG_PINNING)
-    void *mr_check_loc;
+	void *mr_check_loc;
 #endif
-    unsigned overlapping:2;
+	unsigned overlapping:2;
 #if defined(SAFEFETCH_PIN_BUDDY_PAGES)
-    unsigned is_trap:1;
+	unsigned is_trap:1;
 #endif
 };
 
@@ -175,13 +174,13 @@ void dump_region_stats(int *mregions, int *dregions, int *dkmalloc, size_t *dkma
     destroy_region(DF_CUR_METADATA_REGION_ALLOCATOR);      \
     SAFEFETCH_RESET_MEM_RANGE();                           \
 }
-// Called by DFCACHE's memory range subsistem to initialize regions used to allocate memory ranges                                              
+// Called by DFCACHE's memory range subsistem to initialize regions used to allocate memory ranges
 #define initialize_regions() init_region_allocator(DF_CUR_METADATA_REGION_ALLOCATOR, METADATA) &&  \
                              init_region_allocator(DF_CUR_STORAGE_REGION_ALLOCATOR, STORAGE)
 
 #else
 noinline void reset_regions(void);
-noinline void destroy_regions(void);                                             
+noinline void destroy_regions(void);
 noinline bool initialize_regions(void);
 #endif
 

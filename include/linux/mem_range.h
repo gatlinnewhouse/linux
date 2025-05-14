@@ -11,19 +11,23 @@
 #define COPY_FUNC copy_user_generic
 #define ASSERT_OUT_OF_MEMORY(mr) if (unlikely(!mr)) return -1;
 
-unsigned long copy_range( unsigned long long user_src, unsigned long long kern_dst, unsigned long user_size);
+unsigned long copy_range(unsigned long long user_src, unsigned long long kern_dst,
+			 unsigned long user_size);
 struct mem_range* search_range(unsigned long long user_begin, unsigned long long user_end);
 struct mem_range* create_mem_range(unsigned long long user_begin, unsigned long user_size);
 void defragment_mr(struct mem_range *new_mr, struct mem_range *mr);
+
 #ifdef SAFEFETCH_PIN_BUDDY_PAGES
-unsigned long copy_range_pinning( unsigned long long user_src, unsigned long long kern_dst, unsigned long user_size);
+unsigned long copy_range_pinning(unsigned long long user_src, unsigned long long kern_dst,
+				 unsigned long user_size);
 #endif
 
 #ifdef SAFEFETCH_DEBUG
 void dump_range_stats(int *range_size, unsigned long long *avg_size); 
 void mem_range_dump(void);
 void dump_range(unsigned long long start);
-void dump_range_stats_extended(int *range_size, uint64_t *min_size, uint64_t *max_size, unsigned long long *avg_size, uint64_t *total_size);
+void dump_range_stats_extended(int *range_size, uint64_t *min_size, uint64_t *max_size,
+			       unsigned long long *avg_size, uint64_t *total_size);
 #if defined(SAFEFETCH_PIN_BUDDY_PAGES) && defined(SAFEFETCH_DEBUG_PINNING)
 void check_pins(void);
 #endif
@@ -184,23 +188,24 @@ static inline void SAFEFETCH_MEM_RANGE_STRUCT_INSERT_ROOT(struct mem_range *mr){
    }
 }
 
-static inline void SAFEFETCH_MEM_RANGE_STRUCT_INSERT(struct mem_range *prev_mr, struct mem_range *mr){
-   // Make this wrapper unlikely so we balance the extra jumps added by
-   // the static key implementation to all defense versions.
-   IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_adaptive_key){
-      SAFEFETCH_MEM_RANGE_STRUCT_INSERT_ADAPTIVE(prev_mr, mr);
-   } else {
-     // If the rb-tree key is on make this branch unlikely so we incur 
-     // one jump if we fall-through here (safefetch_adaptive_key == False)
-     // We will force a jump in the link list implementation by forcing
-     // the extra adaptive implementation in the link-list as likely.
-     IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_rbtree_key){
-       SAFEFETCH_MEM_RANGE_STRUCT_INSERT_RB(prev_mr, mr);
-     } else {
-       // The else branch is simply the link list implementation.
-       SAFEFETCH_MEM_RANGE_STRUCT_INSERT_LL(prev_mr, mr);
-     }
-   }
+static inline void SAFEFETCH_MEM_RANGE_STRUCT_INSERT(struct mem_range *prev_mr,
+						     struct mem_range *mr) {
+	// Make this wrapper unlikely so we balance the extra jumps added by
+	// the static key implementation to all defense versions.
+	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_adaptive_key){
+		SAFEFETCH_MEM_RANGE_STRUCT_INSERT_ADAPTIVE(prev_mr, mr);
+	} else {
+		// If the rb-tree key is on make this branch unlikely so we incur 
+		// one jump if we fall-through here (safefetch_adaptive_key == False)
+		// We will force a jump in the link list implementation by forcing
+		// the extra adaptive implementation in the link-list as likely.
+		IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_rbtree_key) {
+			SAFEFETCH_MEM_RANGE_STRUCT_INSERT_RB(prev_mr, mr);
+		} else {
+			// The else branch is simply the link list implementation.
+			SAFEFETCH_MEM_RANGE_STRUCT_INSERT_LL(prev_mr, mr);
+		}
+	}
 }
 #endif
 
