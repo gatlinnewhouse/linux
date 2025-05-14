@@ -70,21 +70,6 @@ size_t copy_from_user_iter(void __user *iter_from, size_t progress,
 	return res;
 }
 
-#ifdef CONFIG_SAFEFETCH
-static int copyin_no_dfcache(void *to, const void __user *from, size_t n)
-{
-	size_t res = n;
-	if (should_fail_usercopy())
-		return n;
-	if (access_ok(from, n)) {
-		instrument_copy_from_user_before(to, from, n);
-		res = raw_copy_from_user_no_dfcache(to, from, n);
-		instrument_copy_from_user_after(to, from, n, res);
-	}
-	return res;
-}
-#endif
-
 static __always_inline
 size_t memcpy_to_iter(void *iter_to, size_t progress,
 		      size_t len, void *from, void *priv2)
