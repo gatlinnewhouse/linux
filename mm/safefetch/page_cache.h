@@ -34,7 +34,9 @@ extern uint8_t safefetch_slow_path_order;
 void df_init_page_alloc_array(void);
 void df_resize_page_caches(size_t _metadata_size, size_t _storage_size, uint8_t _order);
 
+#ifndef PAGE_SHIFT
 #define PAGE_SHIFT 12
+#endif
 
 enum df_cache_type {
    METADATA, 
