@@ -5,7 +5,7 @@
 #include "safefetch_debug.h"
 
 #ifdef SAFEFETCH_MEASURE_MEMORY_CONSUMPTION
-#warning "SafeFetch: Measuring memory consumption"
+/* #warning "SafeFetch: Measuring memory consumption" */
 void dump_mem_consumption(struct task_struct *tsk, unsigned long long *total_metadata_region_size, 
                                              unsigned long long *total_data_region_size, 
                                              unsigned long long *total_pin_size){
@@ -163,7 +163,7 @@ noinline bool initialize_regions(void){
     return init_region_allocator(DF_CUR_METADATA_REGION_ALLOCATOR, METADATA) && init_region_allocator(DF_CUR_STORAGE_REGION_ALLOCATOR, STORAGE);     
 }
 #else
-#warning "Region functions inlined"
+/* #warning "Region functions inlined" */
 #endif
 
 // Return: The pointer to the beginning of the allocated page
@@ -189,7 +189,7 @@ static struct mem_region* create_new_region(struct region_allocator* allocator, 
 
     } else {
 #ifdef REGION_ALLOCATOR_LARGER_ORDER_ALLOCATIONS
-        #warning "We are using higher order allocations"
+        /* #warning "We are using higher order allocations" */
         to_allocate = ((nbytes >> PAGE_SHIFT) + 1);
         if (to_allocate != 1) {
            to_allocate <<= (safefetch_slow_path_order + PAGE_SHIFT);
