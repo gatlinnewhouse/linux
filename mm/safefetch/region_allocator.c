@@ -123,7 +123,7 @@ dskip:
 #endif
 
 #ifndef DFCACHER_INLINE_FUNCTIONS
-#warning "Region functions not inlined"
+/* #warning "Region functions not inlined" */
 // TODO Find a smarter way to do all of these includes (looks sloppy now)
 // Called on syscall exit to remove extra regions except one.
 noinline void reset_regions(void) {    
@@ -146,7 +146,7 @@ noinline void reset_regions(void) {
 #endif
   }   
 #if defined(SAFEFETCH_DEBUG) && defined(SAFEFETCH_DEBUG_TRACING)
-  #warning "We have tracing enabled with debugging."
+  /* #warning "We have tracing enabled with debugging." */
   // Check all accesses from interrupt context
   current->df_stats.check_next_access = 1;
 #endif  

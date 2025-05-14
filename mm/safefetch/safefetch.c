@@ -117,7 +117,7 @@ bool check_filter(void){
 #endif
 
 #if defined(SAFEFETCH_DEBUG_COLLECT_SAMPLES)
-#warning "Building with debug and sample collection"
+/* #warning "Building with debug and sample collection" */
 static inline void collect_sample(void){
    struct df_sample_struct sample;
    struct df_sample_link *link;
@@ -145,7 +145,7 @@ static inline void collect_sample(void){
    spin_unlock(&df_sample_lock);
 }
 #elif defined(SAFEFETCH_MEASURE_MEMORY_CONSUMPTION)
-#warning "Building with debug and memory collection"
+/* #warning "Building with debug and memory collection" */
 static inline void collect_sample(void){
    struct df_sample_struct sample;
    struct df_sample_link *link;
@@ -332,7 +332,7 @@ inline unsigned long df_copy_from_user(
 #endif
 
 #ifdef DFCACHER_PERF_SETUP
-    #warning "DFCACHER perf build"
+    /* #warning "DFCACHER perf build" */
     // Switch off defense for nmi interrupts.
     if (unlikely(in_irq_ctx())){
        return COPY_FUNC((void *)kern_dst, (__force void *)user_src, user_size);
@@ -373,7 +373,7 @@ inline unsigned long df_copy_from_user_pinning(
 #endif
 
 #ifdef DFCACHER_PERF_SETUP
-    #warning "DFCACHER perf build"
+    /* #warning "DFCACHER perf build" */
     // Switch off defense for nmi interrupts.
     if (unlikely(in_irq_ctx())){
        return COPY_FUNC((void *)kern_dst, (__force void *)user_src, user_size);

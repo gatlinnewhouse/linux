@@ -77,7 +77,7 @@ extern uint8_t SAFEFETCH_ADAPTIVE_WATERMARK;
 #define SAFEFETCH_DECREMENT_COPIES(tsk) SAFEFETCH_COPIES(tsk)++
 #define SAFEFETCH_CHECK_COPIES(tsk) SAFEFETCH_COPIES(tsk) == 0
 #else
-#warning "SafeFetch Using shift counter"
+/* #warning "SafeFetch Using shift counter" */
 #define SAFEFETCH_RESET_COPIES(tsk)     SAFEFETCH_COPIES(tsk) = ((uint64_t)1 << (SAFEFETCH_ADAPTIVE_WATERMARK - 1))
 #define SAFEFETCH_INCREMENT_COPIES(tsk) SAFEFETCH_COPIES(tsk) >>= 1
 #define SAFEFETCH_DECREMENT_COPIES(tsk) SAFEFETCH_COPIES(tsk) <<= 1

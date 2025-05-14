@@ -21,12 +21,12 @@ extern struct kmem_cache *df_metadata_cache, *df_storage_cache;
 #ifndef METADATA_CACHE_SIZE
 #define METADATA_CACHE_SIZE PAGE_SIZE
 #else
-#warning Using User Supplied Cache for Metadata
+/* #warning Using User Supplied Cache for Metadata */
 #endif
 #ifndef STORAGE_CACHE_SIZE
 #define STORAGE_CACHE_SIZE PAGE_SIZE
 #else
-#warning Using User Supplied Cache for Storage
+/* #warning Using User Supplied Cache for Storage */
 #endif
 
 extern size_t safefetch_metadata_cache_size, safefetch_storage_cache_size; 

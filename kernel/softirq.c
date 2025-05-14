@@ -615,7 +615,7 @@ void irq_enter_rcu(void)
 void irq_enter(void)
 {
 #ifdef SAFEFETCH_DEBUG
-        #warning IRQ_DEFENSE
+        /* #warning IRQ_DEFENSE */
         current->df_stats.in_irq = 1;
 #endif
 	ct_irq_enter();

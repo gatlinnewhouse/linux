@@ -7,10 +7,10 @@
 #endif
 
 #if defined(SAFEFETCH_FLOATING_ADAPTIVE_WATERMARK) && defined(SAFEFETCH_STATIC_KEYS)
-#warning "SafeFetch Using Adaptive Watermark Scheme"
+/* #warning "SafeFetch Using Adaptive Watermark Scheme" */
 uint8_t SAFEFETCH_ADAPTIVE_WATERMARK = 63;
 #else
-#warning "SafeFetch NOT Using Adaptive Watermark Scheme"
+/* #warning "SafeFetch NOT Using Adaptive Watermark Scheme" */
 #endif
 
 struct mem_range* create_mem_range(unsigned long long user_begin,
@@ -153,7 +153,7 @@ static inline void warn_dfcache_use_on_blocked(void) {
 #endif
 
 #if defined(SAFEFETCH_DEBUG) && defined(SAFEFETCH_DEBUG_COLLECT_VULNERABILITIES)
-#warning "Compiling SafeFetch with vulnerability reporting"
+/* #warning "Compiling SafeFetch with vulnerability reporting" */
 struct df_bug_struct* vuln_reports[MAX_REPORTS] = {NULL};
 DEFINE_SPINLOCK(df_exploit_lock);
 static inline void dump_vulnerability(int func){
@@ -303,7 +303,7 @@ static inline void __dump_range_stats_extended_ll(int *range_size, uint64_t *min
    
 }
 #if defined(SAFEFETCH_PIN_BUDDY_PAGES) && defined(SAFEFETCH_DEBUG_PINNING)
-#warning "Debuggin Page Pinning"
+/* #warning "Debuggin Page Pinning" */
 static inline void __check_pins_ll(void){
    struct list_head *item;
    struct mem_range *next_range;
@@ -1273,7 +1273,7 @@ unsigned long copy_range( unsigned long long user_src, unsigned long long kern_d
 
     user_end = user_src + user_size - 1;
 #ifdef SAFEFETCH_MEASURE_DEFENSE
-    #warning "SafeFetch Measuring defense"
+    /* #warning "SafeFetch Measuring defense" */
     MEASURE_FUNC_AND_COUNT(mr = search_range(user_src, user_end);, current->df_prot_struct_head.df_measures.search_time, current->df_prot_struct_head.df_measures.counter);
 #else
     /* Search for the range closest to our copy from user */
