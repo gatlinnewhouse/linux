@@ -45,18 +45,19 @@
 #include <linux/safefetch_static_keys.h>
 #ifdef SAFEFETCH_WHITELISTING
 #warning "Using DFCACHER whitelisting"
-static noinline void should_whitelist(unsigned long syscall_nr){
-    switch(syscall_nr){
-		case __NR_futex:
-		case __NR_execve:
-		case __NR_writev:
-		case __NR_pwritev2:
-		case __NR_pwrite64:
-		case __NR_write:
-                                current->df_prot_struct_head.is_whitelisted = 1;
-                                return;
-    }
-    current->df_prot_struct_head.is_whitelisted = 0;
+static noinline void should_whitelist(unsigned long syscall_nr)
+{
+	switch (syscall_nr) {
+	case __NR_futex:
+	case __NR_execve:
+	case __NR_writev:
+	case __NR_pwritev2:
+	case __NR_pwrite64:
+	case __NR_write:
+			current->df_prot_struct_head.is_whitelisted = 1;
+			return;
+	}
+	current->df_prot_struct_head.is_whitelisted = 0;
 }
 #endif
 #endif
@@ -107,38 +108,38 @@ __visible noinstr bool do_syscall_64(struct pt_regs *regs, int nr)
         // prior to executing a sigaction call). Or simply clear state
         // on irq end (might slow down irqs so avoid this).
 #if defined(CONFIG_SAFEFETCH)
-       IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key){
-        if (unlikely(SAFEFETCH_MEM_RANGE_INIT_FLAG)){
-             // An IPI probably sent us a signal and the signal
-             // enabled the defense in interrupt context. Reset
-             // dfcache interrupt state.
+	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key) {
+		if (unlikely(SAFEFETCH_MEM_RANGE_INIT_FLAG)){
+			// An IPI probably sent us a signal and the signal
+			// enabled the defense in interrupt context. Reset
+			// dfcache interrupt state.
 #ifndef SAFEFETCH_DEBUG
-             // If in debug mode, we actually reset the range in
-             // df_debug_syscall_entry.
-             SAFEFETCH_RESET_MEM_RANGE();
+			// If in debug mode, we actually reset the range in
+			// df_debug_syscall_entry.
+			SAFEFETCH_RESET_MEM_RANGE();
 #endif
-             shrink_region(DF_CUR_STORAGE_REGION_ALLOCATOR);
-             shrink_region(DF_CUR_METADATA_REGION_ALLOCATOR);
-        }
-       }
+			shrink_region(DF_CUR_STORAGE_REGION_ALLOCATOR);
+			shrink_region(DF_CUR_METADATA_REGION_ALLOCATOR);
+		}
+	}
 #endif
 
 #ifdef SAFEFETCH_MEASURE_DEFENSE
-        // We only use this for measuring so execute this without the static key
-        // else we get into nasty scenarios if we miss this initialization step.
-        df_init_measure_structs(current);
+	// We only use this for measuring so execute this without the static key
+	// else we get into nasty scenarios if we miss this initialization step.
+	df_init_measure_structs(current);
 #endif
 	nr = syscall_enter_from_user_mode(regs, nr);
 #if defined(CONFIG_SAFEFETCH) && defined(SAFEFETCH_WHITELISTING)
-        should_whitelist(nr);
+	should_whitelist(nr);
 #endif
 
 
 
 #if defined(CONFIG_SAFEFETCH) && defined(SAFEFETCH_DEBUG)
-       IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key){
-          df_debug_syscall_entry(nr, regs);
-       }
+	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key) {
+		df_debug_syscall_entry(nr, regs);
+	}
 #endif
 
 
@@ -153,17 +154,17 @@ __visible noinstr bool do_syscall_64(struct pt_regs *regs, int nr)
 	syscall_exit_to_user_mode(regs);
 
 #ifdef CONFIG_SAFEFETCH
-       // Note, we might have rseq regions executing in syscall_exit_to_user_mode
-       // and irqs so delay resetting region after this.
-      IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key){
+	// Note, we might have rseq regions executing in syscall_exit_to_user_mode
+	// and irqs so delay resetting region after this.
+	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key) {
 #ifdef SAFEFETCH_DEBUG
-        df_debug_syscall_exit();
+		df_debug_syscall_exit();
 #endif
 #ifdef SAFEFETCH_MEASURE_DEFENSE
-        df_destroy_measure_structs();
+		df_destroy_measure_structs();
 #endif
-        reset_regions();
-      }
+		reset_regions();
+	}
 #endif
 
 	/*
