@@ -86,6 +86,7 @@ struct mem_range* create_pin_range(unsigned long long user_begin, unsigned long 
     // Return newly created memory range
     return new_mr;
 }
+
 void copy_from_page_pin(void * kern_dst, unsigned long long pin_virt_addr, unsigned long long user_size){
    void *src;
    struct page *page;

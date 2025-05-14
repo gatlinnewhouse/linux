@@ -52,5 +52,20 @@ void init_safefetch_debug_layer(void);
 #define SAFEFETCH_ASSERT_ALL 1
 
 
+#ifdef SAFEFETCH_PIN_BUDDY_PAGES
+struct mem_range* create_pin_range(unsigned long long, unsigned long, unsigned long long);
+void copy_from_page_pin(void *, unsigned long long, unsigned long long);
+#endif
+
+#if !defined(SAFEFETCH_RBTREE_MEM_RANGE) && !defined(SAFEFETCH_ADAPTIVE_MEM_RANGE) && !defined(SAFEFETCH_RBTREE_MEM_RANGE)
+void convert_to_rbtree(uint8_t);
+struct mem_range* __search_range_rb_noinline_hook(unsigned long long, unsigned long long);
+struct mem_range* __search_range_ll_noinline_hook(unsigned long long, unsigned long long);
+void __defragment_mr_ll_noinline_hook(struct mem_range *, struct mem_range *);
+void __defragment_mr_rb_noinline_hook(struct mem_range *, struct mem_range *);
+#ifdef SAFEFETCH_DEBUG
+void __dump_range_stats_extended_adaptive(int *, uint64_t *, uint64_t *, unsigned long long *, uint64_t *);
+#endif
+#endif
 
 #endif
