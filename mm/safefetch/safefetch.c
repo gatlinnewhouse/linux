@@ -355,7 +355,7 @@ inline int df_get_user8(unsigned long long user_src, unsigned long user_val,
 // Calling location: arch/x86/include/asm/uaccess.h:do_get_user_call
 // Return: Response code (-1 = failure)
 inline int df_get_useru8(unsigned long long user_src,
-			 unsigned int user_val,
+			 unsigned long user_val,
 			 unsigned long long kern_dst)
 {
 #ifdef SAFEFETCH_WHITELISTING
