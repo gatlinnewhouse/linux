@@ -648,8 +648,13 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
 		return -1;
 
 retry:
+#ifdef CONFIG_SAFEFETCH
+	if (get_user_no_dfcache(uval, uaddr))
+		return -1;
+#else
 	if (get_user(uval, uaddr))
 		return -1;
+#endif
 
 	/*
 	 * Special case for regular (non PI) futexes. The unlock path in
