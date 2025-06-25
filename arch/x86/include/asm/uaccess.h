@@ -118,7 +118,7 @@ extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 	 *	__inttype = func that gets the smallest variable type that fits the source
 	 *	__val_gu  = intermediate storage of user obtained variable
 	 *	Obtain a register with a size equal to *ptr and store the user data pointer inside it
-	 */
+	 */ \
 	register __inttype(*(ptr)) __val_gu asm("%"_ASM_DX); \
 	/* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
 	__chk_user_ptr(ptr);							 \
@@ -143,7 +143,7 @@ extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 	 * This function calls one of the __get_user_X functions based on the size of the ptr data
 	 * This copies the data from user space into the temporary variable __val_gu
 	 * The result of this operation is stored in the variable __ret_gu
-	 */
+	 */ \
 	asm volatile("call __" #fn "_%P4"						  \
 		     : "=a" (__ret_gu), "=r" (__val_gu),				  \
 			ASM_CALL_CONSTRAINT						  \
@@ -151,14 +151,14 @@ extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 	instrument_get_user(__val_gu);					\
 	/* Casts the variable inside __val_gu to the correct type and stores it inside
 	 * the kernel destination 'x'
-	 */
+	 */ \
 	(x) = (__force __typeof__(*(ptr))) __val_gu;									  \
 	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_copy_from_user_key) {					   \
 		if (GET_USER_CALL_CHECK(__ret_gu)) {											      \
 			__ret_gu = __dfgetuserfunc(*(ptr))((unsigned long long)(ptr), __val_gu, (unsigned long long)(&x)) ;	  \
 		}														  \
 	}														  \
-	/* Integrity check that expects a 0 as value for __ret_gu (call successful) */
+	/* Integrity check that expects a 0 as value for __ret_gu (call successful) */ \
 	__builtin_expect(__ret_gu, 0);					    \
 })
 
@@ -173,7 +173,7 @@ extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 	 *	__inttype = func that gets the smallest variable type that fits the source	      \
 	 *	__val_gu  = intermediate storage of user obtained variable			      \
 	 *	Obtain a register with a size equal to *ptr and store the user data pointer inside it \
-	 */
+	 */ \
 	register __inttype(*(ptr)) __val_gu asm("%"_ASM_DX); \
 	/* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
 	__chk_user_ptr(ptr);							 \
@@ -198,14 +198,14 @@ extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 	 * This function calls one of the __get_user_X functions based on the size of the ptr data
 	 * This copies the data from user space into the temporary variable __val_gu
 	 * The result of this operation is stored in the variable __ret_gu
-	 */
+	 */ \
 	asm volatile("call __" #fn "_%P4"				    \
 		     : "=a" (__ret_gu), "=r" (__val_gu),		\
 			ASM_CALL_CONSTRAINT					    \
 		     : "0" (ptr), "i" (sizeof(*(ptr))));		\
 	/* Casts the variable inside __val_gu to the correct type and stores it inside
 	 * the kernel destination 'x'
-	 */
+	 */ \
 	instrument_get_user(__val_gu);					\
 	(x) = (__force __typeof__(*(ptr))) __val_gu;	    \
 	/* Integrity check that expects a 0 as value for __ret_gu (call successful) */ \
@@ -233,7 +233,7 @@ extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 	 *	__inttype = func that gets the smallest variable type that fits the source	      \
 	 *	__val_gu  = intermediate storage of user obtained variable			      \
 	 *	Obtain a register with a size equal to *ptr and store the user data pointer inside it \
-	 */
+	 */ \
 	register __inttype(*(ptr)) __val_gu asm("%"_ASM_DX);		\
 	/* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
 	__chk_user_ptr(ptr);						\
@@ -259,7 +259,7 @@ extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 	 * This function calls one of the __get_user_X functions based on the size of the ptr data
 	 * This copies the data from user space into the temporary variable __val_gu
 	 * The result of this operation is stored in the variable __ret_gu
-	 */
+	 */ \
 	asm volatile("call __" #fn "_%c[size]"				\
 		     : "=a" (__ret_gu), "=r" (__val_gu),		\
 			ASM_CALL_CONSTRAINT				\
@@ -267,9 +267,9 @@ extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 	instrument_get_user(__val_gu);					\
 	/* Casts the variable inside __val_gu to the correct type and stores it inside
 	 * the kernel destination 'x'
-	 */
+	 */ \
 	(x) = (__force __typeof__(*(ptr))) __val_gu;			\
-	/* Integrity check that expects a 0 as value for __ret_gu (call successful) */
+	/* Integrity check that expects a 0 as value for __ret_gu (call successful) */ \
 	__builtin_expect(__ret_gu, 0);					\
 })
 
