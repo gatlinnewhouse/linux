@@ -112,7 +112,7 @@ __visible noinstr bool do_syscall_64(struct pt_regs *regs, int nr)
 {
 	add_random_kstack_offset();
 	// If interrupts using current execute prior to the next syscall
-	// then we will enter the syscall with the mem_range intialized
+	// then we will enter the syscall with the mem_range initialized
 	// we could chose to clean this info (shrink_region) or simply
 	// trust that the interrupt doesn't fetch something nasty and just
 	// operate the next syscall on the interrupt state (happens for

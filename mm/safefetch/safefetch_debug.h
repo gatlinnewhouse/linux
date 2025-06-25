@@ -8,8 +8,8 @@
 #define DF_SYSCALL_FETCHES get_current()->df_stats.num_fetches
 #define DF_SYSCALL_DEFRAGS get_current()->df_stats.num_defrags
 #define DF_SYSCALL_COUNT get_current()->df_stats.syscall_count
-#define DF_INC_FETCHES DF_SYSCALL_FETCHES++
-#define DF_INC_DEFRAGS DF_SYSCALL_DEFRAGS++
+#define DF_INC_FETCHES (DF_SYSCALL_FETCHES++)
+#define DF_INC_DEFRAGS (DF_SYSCALL_DEFRAGS++)
 #define DF_ALLOCATIONS(tsk) tsk->df_stats.nallocations
 #define DEBUG_TASK_INITIALIZED(tsk) \
 	tsk->df_prot_struct_head.df_mem_range_allocator.initialized
@@ -29,7 +29,7 @@ void init_safefetch_debug_layer(void);
 
 #define SAFEFETCH_DEBUG_LOG(log_level, ...)     \
 	if ((log_level) <= df_cacher_log_level) \
-	printk(KERN_INFO __VA_ARGS__)
+		printk(KERN_INFO __VA_ARGS__)
 #define SAFEFETCH_DEBUG_ASSERT(log_level, assertion, ...) \
 	if ((log_level) <= df_cacher_assert_level) {      \
 		if (!(assertion))                         \

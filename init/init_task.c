@@ -228,7 +228,7 @@ struct task_struct init_task __aligned(L1_CACHE_BYTES) = {
 #ifndef SAFEFETCH_MEASURE_DEFENSE
 	.df_prot_struct_head = {  .df_mem_range_allocator = { .initialized = 0 }, .df_metadata_allocator = {.first = 0, .initialized = 0, .extended = 0}, .df_storage_allocator = {.first = 0, .initialized = 0, .extended = 0}},
 #else
-       .df_prot_struct_head = {  .df_mem_range_allocator = { .initialized = 0 }, .df_metadata_allocator = {.first = 0, .initialized = 0, .extended = 0}, .df_storage_allocator = {.first = 0, .initialized = 0, .extended = 0}, .df_measures = {.search_time = 0, .insert_time = 0, .counter = 0}},
+	.df_prot_struct_head = {  .df_mem_range_allocator = { .initialized = 0 }, .df_metadata_allocator = {.first = 0, .initialized = 0, .extended = 0}, .df_storage_allocator = {.first = 0, .initialized = 0, .extended = 0}, .df_measures = {.search_time = 0, .insert_time = 0, .counter = 0}},
 #endif
 #endif
 };

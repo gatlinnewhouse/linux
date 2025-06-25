@@ -24,9 +24,8 @@ void dump_mem_consumption(struct task_struct *tsk,
 
 	total_size += REGION_SIZE(allocator->first);
 
-	if (!(allocator->extended)) {
+	if (!(allocator->extended))
 		goto mconsume_skip;
-	}
 	list_for_each(item, &(allocator->extra_ranges)) {
 		next_region = list_entry(item, struct mem_region, extra_ranges);
 		total_size += REGION_SIZE(next_region);
@@ -44,9 +43,8 @@ mconsume_skip:
 
 	total_size += REGION_SIZE(allocator->first);
 
-	if (!(allocator->extended)) {
+	if (!(allocator->extended))
 		goto dconsume_skip;
-	}
 	list_for_each(item, &(allocator->extra_ranges)) {
 		next_region = list_entry(item, struct mem_region, extra_ranges);
 		total_size += REGION_SIZE(next_region);
@@ -84,9 +82,8 @@ void dump_region_stats(int *mregions, int *dregions, int *dkmalloc,
 
 	allocator = DF_CUR_METADATA_REGION_ALLOCATOR;
 	regions = 0;
-	if (!(allocator->extended)) {
+	if (!(allocator->extended))
 		goto mskip;
-	}
 	list_for_each(item, &(allocator->extra_ranges)) {
 		next_region = list_entry(item, struct mem_region, extra_ranges);
 		regions++;
@@ -101,9 +98,8 @@ mskip:
 	kmallocs = 0;
 	kmallocmax = 0;
 
-	if (!(allocator->extended)) {
+	if (!(allocator->extended))
 		goto dskip;
-	}
 	list_for_each(item, &(allocator->extra_ranges)) {
 		next_region = list_entry(item, struct mem_region, extra_ranges);
 		regions++;
@@ -132,16 +128,16 @@ dskip:
 noinline void reset_regions(void)
 {
 	if (SAFEFETCH_MEM_RANGE_INIT_FLAG) {
-		/* Reset the range first if by some unfortunate incident 
-       we get rescheduled by an interrupt here (that uses current)
-       as long as we mark the mem_range as uninitialized and 
-       as long as the interrupt uses less than the first region
-       there should be no concurency issue and after the interrupt
-       is over we can cleanup any extra range. In case the interrupt
-       happens prior to the flag being set than the interrupt just
-       adds to the extended regions which we will clean after the
-       interrupt ends.
-    */
+		/* Reset the range first if by some unfortunate incident
+		 * we get rescheduled by an interrupt here (that uses current)
+		 * as long as we mark the mem_range as uninitialized and
+		 * as long as the interrupt uses less than the first region
+		 * there should be no concurency issue and after the interrupt
+		 * is over we can cleanup any extra range. In case the interrupt
+		 * happens prior to the flag being set than the interrupt just
+		 * adds to the extended regions which we will clean after the
+		 * interrupt ends.
+		 */
 		SAFEFETCH_RESET_MEM_RANGE();
 		shrink_region(DF_CUR_STORAGE_REGION_ALLOCATOR);
 		shrink_region(DF_CUR_METADATA_REGION_ALLOCATOR);
@@ -247,14 +243,14 @@ bool init_region_allocator(struct region_allocator *allocator, u8 cache_type)
 	struct mem_region *first_region = allocator->first;
 
 	if (likely(allocator->initialized)) {
-		// Expect at least a couple of syscalls in the proces so it's most likely that the allocator
-		// is already intialized so reset the base of the region.
+		// Expect at least a couple of syscalls in the process so it's most likely that the allocator
+		// is already initialized so reset the base of the region.
 		REGION_REMAINING_BYTES(first_region) =
 			BYTE_GRANULARITY(allocator) - sizeof(struct mem_region);
 		REGION_PTR(first_region) =
 			(unsigned long long)(first_region + 1);
 
-		// No need to mark the allocator as not extended. We do this once we shrink the region now (as it seems necesary).
+		// No need to mark the allocator as not extended. We do this once we shrink the region now (as it seems necessary).
 		//allocator->extended = 0;
 		return true;
 	}
@@ -319,9 +315,8 @@ static __always_inline void __shrink_region(struct region_allocator *allocator)
 			// Decrement ref on each page and remove the page if necessary.
 #if 0
 	 page = (void *) (list_entry(item, struct mem_pin, pin_link)->ptr);
-	 if (put_page_testzero(page)) {
-	    free_the_page(page, compound_order(page));
-	 }
+	 if (put_page_testzero(page))
+		free_the_page(page, compound_order(page));
 #endif
 			frag = (list_entry(item, struct mem_pin, pin_link)->ptr);
 			page_frag_free(frag);
@@ -336,15 +331,15 @@ static __always_inline void __shrink_region(struct region_allocator *allocator)
 	}
 
 	/* Remove all extra regions allocated for the syscall. Must be
-       list_for_each_safe else we may release regions and at the same
-       time some will grab it and modify our linked lists. */
+	 * list_for_each_safe else we may release regions and at the same
+	 * time some will grab it and modify our linked lists.
+	 */
 	list_for_each_safe(item, next, &(allocator->extra_ranges)) {
 		next_region = list_entry(item, struct mem_region, extra_ranges);
-		if (next_region->is_cached) {
+		if (next_region->is_cached)
 			df_free_chunk(allocator->cache, (void *)next_region);
-		} else {
+		else
 			df_free_chunk_slowpath(next_region);
-		}
 #ifdef SAFEFETCH_DEBUG
 		num_freed_regions++;
 #endif
@@ -352,7 +347,7 @@ static __always_inline void __shrink_region(struct region_allocator *allocator)
 	// Don't free linked list as we're simply going to reinitialize the list once another
 	// task grabs those pages. However mark the allocator as not extended anymore.
 	// If the process receives a signal in the middle of handling a syscall after the
-	// region is shrinked we might attempt to shrink the region again.
+	// region is shrunk we might attempt to shrink the region again.
 	allocator->extended = 0;
 
 	SAFEFETCH_DEBUG_ASSERT(
@@ -366,32 +361,33 @@ static __always_inline void __shrink_region(struct region_allocator *allocator)
 void shrink_region(struct region_allocator *allocator)
 {
 #if 0
-    // Now if any of the two allocators are not initialized the mem_range_init flag
-    // is not set to 1. 
-    // TODO once we guarded shrink_region and destroy_region with the mem_range
-    // initialization flag the test for allocator->initialized only becomes relevant
-    // in case the initialization failed via kmalloc. There must be a faster way
-    // to do this. Also, now this condition became unlikely given that this code will
-    // mostly execute ONLY if the allocator is initialized (under the guard of the
-    // mem_range flag).
-    if (unlikely(!(allocator->initialized))){
+	// Now if any of the two allocators are not initialized the mem_range_init flag
+	// is not set to 1.
+	// TODO once we guarded shrink_region and destroy_region with the mem_range
+	// initialization flag the test for allocator->initialized only becomes relevant
+	// in case the initialization failed via kmalloc. There must be a faster way
+	// to do this. Also, now this condition became unlikely given that this code will
+	// mostly execute ONLY if the allocator is initialized (under the guard of the
+	// mem_range flag).
+	if (unlikely(!(allocator->initialized))) {
 #ifdef REGION_CHECKS_EXTENDED
-	printk("[Task %s] [K %llx] shrink_region: Error allocator is not initialized\n", current->comm, current->flags & PF_KTHREAD);
+		printk("[Task %s] [K %llx] shrink_region: Error allocator is not initialized\n", current->comm, current->flags & PF_KTHREAD);
 #endif
-	return;
-    }
+		return;
+	}
 #endif
 	__shrink_region(allocator);
 }
 
 void destroy_region(struct region_allocator *allocator)
 {
-	/* We assume that the process will call at least one copy from user so 
-	it has at least the first region initialized. */
+	/* We assume that the process will call at least one copy from user so
+	 * it has at least the first region initialized.
+	 */
 	if (unlikely(!(allocator->initialized))) {
 #ifdef REGION_CHECKS_EXTENDED
 		printk("[Task %s] [K %llx] destroy_region: Error allocator is not initialized\n",
-		       current->comm, current->flags & PF_KTHREAD);
+			current->comm, current->flags & PF_KTHREAD);
 #endif
 		return;
 	}
@@ -495,9 +491,8 @@ slow_path:
 
 	next_region = create_new_region(allocator, alloc_size);
 
-	if (!next_region) {
+	if (!next_region)
 		return 0;
-	}
 
 	ptr = REGION_PTR(next_region);
 

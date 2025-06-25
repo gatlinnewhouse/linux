@@ -197,7 +197,7 @@ static enum bug_trap_type __report_bug(unsigned long bugaddr, struct pt_regs *re
 		/* this is a WARN_ON rather than BUG/BUG_ON */
 		__warn(file, line, (void *)bugaddr, BUG_GET_TAINT(bug), regs,
 		       NULL);
-#if defined(SAFEFETCH_DEBUG) 
+#if defined(SAFEFETCH_DEBUG)
 		current->df_stats.traced = 0;
 #endif
 		return BUG_TRAP_TYPE_WARN;

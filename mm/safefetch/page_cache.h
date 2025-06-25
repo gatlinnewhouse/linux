@@ -1,15 +1,9 @@
 #ifndef __PAGE_CACHE_H__
 #define __PAGE_CACHE_H__
 
-/*
-    if (strcmp(current->comm, "bash") == 0) {
-        current->df_stats.traced = 1;
-        WARN_ON(1);
-        current->df_stats.traced = 0;
-    }
-*/
 #include <linux/slab.h>
 #include <asm/processor.h>
+// #include <linux/processor.h> instead?
 #include "safefetch_debug.h"
 extern struct kmem_cache *df_metadata_cache, *df_storage_cache;
 
@@ -91,12 +85,14 @@ static __always_inline void *df_allocate_chunk(struct kmem_cache *cache)
 {
 #if defined(SAFEFETCH_DEBUG) && defined(SAFEFETCH_DEBUG_LEAKS)
 	unsigned long iflags;
+
 	spin_lock_irqsave(&allocations_lock, iflags);
 	global_allocations++;
 	DF_ALLOCATIONS(current)++;
 	spin_unlock_irqrestore(&allocations_lock, iflags);
 #endif
 	gfp_t flags = unlikely(in_atomic()) ? GFP_ATOMIC : GFP_KERNEL;
+
 	return kmem_cache_alloc(cache, flags);
 }
 
@@ -104,6 +100,7 @@ static __always_inline void df_free_chunk(struct kmem_cache *cache, void *obj)
 {
 #if defined(SAFEFETCH_DEBUG) && defined(SAFEFETCH_DEBUG_LEAKS)
 	unsigned long iflags;
+
 	spin_lock_irqsave(&allocations_lock, iflags);
 	global_allocations--;
 	DF_ALLOCATIONS(current)--;
@@ -116,12 +113,14 @@ static __always_inline void *df_allocate_chunk_slowpath(size_t size)
 {
 #if defined(SAFEFETCH_DEBUG) && defined(SAFEFETCH_DEBUG_LEAKS)
 	unsigned long iflags;
+
 	spin_lock_irqsave(&allocations_lock, iflags);
 	global_allocations++;
 	DF_ALLOCATIONS(current)++;
 	spin_unlock_irqrestore(&allocations_lock, iflags);
 #endif
 	gfp_t flags = unlikely(in_atomic()) ? GFP_ATOMIC : GFP_KERNEL;
+
 	return kmalloc(size, flags);
 }
 
@@ -129,6 +128,7 @@ static __always_inline void df_free_chunk_slowpath(void *obj)
 {
 #if defined(SAFEFETCH_DEBUG) && defined(SAFEFETCH_DEBUG_LEAKS)
 	unsigned long iflags;
+
 	spin_lock_irqsave(&allocations_lock, iflags);
 	global_allocations--;
 	DF_ALLOCATIONS(current)--;

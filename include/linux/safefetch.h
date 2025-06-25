@@ -6,7 +6,7 @@
 #ifdef SAFEFETCH_MEASURE_DEFENSE
 
 
-// These are defined in safefetch.c 
+// These are defined in safefetch.c
 extern char global_monitored_task[];
 extern int  global_monitored_syscall;
 extern uint64_t global_search_time[];
@@ -23,52 +23,52 @@ struct df_measure_struct {
 };
 
 #define df_activate_measure_structs(tsk, sysnr) {                                                                          \
-     if ((!strcmp(tsk->comm, global_monitored_task)) && (global_monitored_syscall == sysnr)) {                             \
+	if ((!strcmp(tsk->comm, global_monitored_task)) && (global_monitored_syscall == sysnr)) {                             \
+		tsk->df_prot_struct_head.df_measures.search_time =  kmalloc(SAFEFETCH_MEASURE_MAX * sizeof(uint64_t), GFP_KERNEL); \
+		tsk->df_prot_struct_head.df_measures.insert_time =  kmalloc(SAFEFETCH_MEASURE_MAX * sizeof(uint64_t), GFP_KERNEL); \
+		memset(tsk->df_prot_struct_head.df_measures.search_time, 0, SAFEFETCH_MEASURE_MAX * sizeof(uint64_t));             \
+		memset(tsk->df_prot_struct_head.df_measures.insert_time, 0, SAFEFETCH_MEASURE_MAX * sizeof(uint64_t));             \
+		tsk->df_prot_struct_head.df_measures.counter = 0;                                                                  \
+	}                                                                                                                     \
+}
+
+#define df_init_measure_structs(tsk) {                                             \
+	tsk->df_prot_struct_head.df_measures.search_time = NULL;                      \
+	tsk->df_prot_struct_head.df_measures.insert_time = NULL;                      \
+	tsk->df_prot_struct_head.df_measures.counter = 0;                             \
+}
+
+// TODO all of these are macros so we bypass an error due to stupid inclusion order.
+#define df_init_current_measure_structs(tsk) { \
 	tsk->df_prot_struct_head.df_measures.search_time =  kmalloc(SAFEFETCH_MEASURE_MAX * sizeof(uint64_t), GFP_KERNEL); \
 	tsk->df_prot_struct_head.df_measures.insert_time =  kmalloc(SAFEFETCH_MEASURE_MAX * sizeof(uint64_t), GFP_KERNEL); \
 	memset(tsk->df_prot_struct_head.df_measures.search_time, 0, SAFEFETCH_MEASURE_MAX * sizeof(uint64_t));             \
 	memset(tsk->df_prot_struct_head.df_measures.insert_time, 0, SAFEFETCH_MEASURE_MAX * sizeof(uint64_t));             \
 	tsk->df_prot_struct_head.df_measures.counter = 0;                                                                  \
-     }                                                                                                                     \
 }
 
-#define df_init_measure_structs(tsk) {                                             \
-     tsk->df_prot_struct_head.df_measures.search_time = NULL;                      \
-     tsk->df_prot_struct_head.df_measures.insert_time = NULL;                      \
-     tsk->df_prot_struct_head.df_measures.counter = 0;                             \
-}
-
-// TODO all of these are macros so we bypass an error due to stupid inclusion order.
-#define df_init_current_measure_structs(tsk) { \
-     tsk->df_prot_struct_head.df_measures.search_time =  kmalloc(SAFEFETCH_MEASURE_MAX * sizeof(uint64_t), GFP_KERNEL); \
-     tsk->df_prot_struct_head.df_measures.insert_time =  kmalloc(SAFEFETCH_MEASURE_MAX * sizeof(uint64_t), GFP_KERNEL); \
-     memset(tsk->df_prot_struct_head.df_measures.search_time, 0, SAFEFETCH_MEASURE_MAX * sizeof(uint64_t));             \
-     memset(tsk->df_prot_struct_head.df_measures.insert_time, 0, SAFEFETCH_MEASURE_MAX * sizeof(uint64_t));             \
-     tsk->df_prot_struct_head.df_measures.counter = 0;                                                                  \
-}
-
-#define df_destroy_measure_structs(){                                                                                                                        \
-     if (current->df_prot_struct_head.df_measures.search_time) {                                                                                             \
-	 kfree(current->df_prot_struct_head.df_measures.search_time);                                                                                        \
-	 kfree(current->df_prot_struct_head.df_measures.insert_time);                                                                                        \
-     }                                                                                                                                                       \
-     current->df_prot_struct_head.df_measures.search_time = NULL;                                                                                            \
-     current->df_prot_struct_head.df_measures.insert_time = NULL;                                                                                            \
-     current->df_prot_struct_head.df_measures.counter = 0;                                                                                                   \
+#define df_destroy_measure_structs() {                                                                                                                        \
+	if (current->df_prot_struct_head.df_measures.search_time) {                                                                                             \
+		kfree(current->df_prot_struct_head.df_measures.search_time);                                                                                        \
+		kfree(current->df_prot_struct_head.df_measures.insert_time);                                                                                        \
+	}                                                                                                                                                       \
+	current->df_prot_struct_head.df_measures.search_time = NULL;                                                                                            \
+	current->df_prot_struct_head.df_measures.insert_time = NULL;                                                                                            \
+	current->df_prot_struct_head.df_measures.counter = 0;                                                                                                   \
 }
 
 #if 0
-#define df_destroy_measure_structs(){                                                                                                                        \
-     if (current->df_prot_struct_head.df_measures.search_time) {                                                                                             \
-	 memset(global_search_time, 0, SAFEFETCH_MEASURE_MAX * sizeof(uint64_t));                                                                            \
-	 global_search_count = current->df_prot_struct_head.df_measures.counter;                                                                             \
-	 memcpy(global_search_time, current->df_prot_struct_head.df_measures.search_time , current->df_prot_struct_head.df_measures.counter * sizeof(uint64_t));                          \
-	 kfree(current->df_prot_struct_head.df_measures.search_time);                                                                                        \
-	 kfree(current->df_prot_struct_head.df_measures.insert_time);                                                                                        \
-     }                                                                                                                                                       \
-     current->df_prot_struct_head.df_measures.search_time = NULL;                                                                                            \
-     current->df_prot_struct_head.df_measures.insert_time = NULL;                                                                                            \
-     current->df_prot_struct_head.df_measures.counter = 0;                                                                                                   \
+#define df_destroy_measure_structs() {                                                                                                                        \
+	if (current->df_prot_struct_head.df_measures.search_time) {                                                                                             \
+		memset(global_search_time, 0, SAFEFETCH_MEASURE_MAX * sizeof(uint64_t));                                                                            \
+		global_search_count = current->df_prot_struct_head.df_measures.counter;                                                                             \
+		memcpy(global_search_time, current->df_prot_struct_head.df_measures.search_time, current->df_prot_struct_head.df_measures.counter * sizeof(uint64_t));                          \
+		kfree(current->df_prot_struct_head.df_measures.search_time);                                                                                        \
+		kfree(current->df_prot_struct_head.df_measures.insert_time);                                                                                        \
+	}                                                                                                                                                       \
+	current->df_prot_struct_head.df_measures.search_time = NULL;                                                                                            \
+	current->df_prot_struct_head.df_measures.insert_time = NULL;                                                                                            \
+	current->df_prot_struct_head.df_measures.counter = 0;                                                                                                   \
 }
 #endif
 #endif
@@ -151,8 +151,8 @@ struct df_sample_struct {
 };
 
 struct df_sample_link {
-   struct df_sample_struct sample;
-   struct list_head node;
+	struct df_sample_struct sample;
+	struct list_head node;
 };
 #elif defined(SAFEFETCH_MEASURE_MEMORY_CONSUMPTION)
 struct df_sample_struct {
@@ -208,7 +208,7 @@ extern int df_get_user4(unsigned long long user_src, unsigned int user_val,
 			unsigned long long kern_dst);
 extern int df_get_user8(unsigned long long user_src, unsigned long user_val,
 			unsigned long long kern_dst);
-extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val,
+extern int df_get_useru8(unsigned long long user_src, unsigned long user_val,
 			 unsigned long long kern_dst);
 
 // SafeFetch copy_from_user hook

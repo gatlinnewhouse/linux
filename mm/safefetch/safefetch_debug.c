@@ -2,9 +2,9 @@
 #include <linux/swap.h>
 #include "safefetch_debug.h"
 
-volatile int df_cacher_log_level = 0;
-volatile int df_cacher_assert_level = 0;
-volatile unsigned long global_allocations = 0;
+volatile int df_cacher_log_level;
+volatile int df_cacher_assert_level;
+volatile unsigned long global_allocations;
 spinlock_t allocations_lock;
 spinlock_t df_sample_lock;
 
@@ -97,7 +97,7 @@ void init_safefetch_debug_layer(void)
 end:
 
 	printk(KERN_INFO
-	       "[SafeFetch] Succesfully initialized debugging layer......\n");
+	       "[SafeFetch] Successfully initialized debugging layer......\n");
 	return;
 allocations_error:
 	sysfs_remove_file(kernel_kobj, &allocations_attr.attr);

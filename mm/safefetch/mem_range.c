@@ -177,15 +177,15 @@ static inline void dump_vulnerability(int func)
 {
 	int i;
 	int max_tries = 0;
+
 	spin_lock(&df_exploit_lock);
 	if (vuln_reports[0] == NULL)
 		memset(vuln_reports, 0,
 		       MAX_REPORTS * sizeof(struct df_bug_struct *));
 
 	for (i = 0; i < MAX_REPORTS; i++) {
-		if (max_tries == MAX_SYSCALL_REPORTS) {
+		if (max_tries == MAX_SYSCALL_REPORTS)
 			break;
-		}
 		if (vuln_reports[i] == NULL) {
 			// Report bug
 
@@ -224,9 +224,9 @@ static inline void __mem_range_dump_ll(void)
 	struct list_head *item;
 	struct mem_range *next_range;
 	unsigned int list_size = 0;
-	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
+
+	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG)
 		return;
-	}
 	printk(KERN_INFO
 	       "[SafeFetch][ModuleDebug]>====Start of mem_range_dump(LLIST)====<\n");
 	list_for_each(item, &(SAFEFETCH_HEAD_NODE_LL(current))) {
@@ -253,9 +253,9 @@ static inline void __dump_range_ll(unsigned long long start)
 	struct list_head *item;
 	struct mem_range *next_range;
 	int i, size;
-	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
+
+	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG)
 		return;
-	}
 	printk(KERN_INFO
 	       "[SafeFetch][ModuleDebug]>====Start of dump_range====<\n");
 	list_for_each(item, &(SAFEFETCH_HEAD_NODE_LL(current))) {
@@ -264,9 +264,8 @@ static inline void __dump_range_ll(unsigned long long start)
 		if (next_range->mr_begin == start) {
 			size = next_range->mr_end - next_range->mr_begin + 1;
 			for (i = 0; i < size; i++) {
-				if ((i % 8) == 0) {
+				if ((i % 8) == 0)
 					printk("\n");
-				}
 				printk(KERN_CONT "0x%x ",
 				       *((unsigned char
 						  *)(next_range->mr_prot_loc +
@@ -288,6 +287,7 @@ static inline void __dump_range_stats_ll(int *range_size,
 	struct mem_range *next_range;
 	int rsize = 0;
 	uint64_t msize = 0;
+
 	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
 		*range_size = 0;
 		*avg_size = 0;
@@ -330,12 +330,10 @@ static inline void __dump_range_stats_extended_ll(int *range_size,
 		intermediate_size =
 			next_range->mr_end - next_range->mr_begin + 1;
 		msize += intermediate_size;
-		if (intermediate_size > *max_size) {
+		if (intermediate_size > *max_size)
 			*max_size = intermediate_size;
-		}
-		if (*min_size == 0 || (*min_size > intermediate_size)) {
+		if (*min_size == 0 || (*min_size > intermediate_size))
 			*min_size = intermediate_size;
-		}
 		rsize++;
 	}
 
@@ -471,7 +469,7 @@ static inline void __defragment_mr_ll(struct mem_range *new_mr,
 		// If not this is past the user buffer address so simply break the loop
 		// as all remaining ranges are past this.
 		if (mr->mr_end > new_mr->mr_end) {
-			// The begining of the new Split mr will be new_mr->mr_end + 1.
+			// The beginning of the new Split mr will be new_mr->mr_end + 1.
 			split_mr_begin = new_mr->mr_end + 1;
 			// Split mr only if this is the last mr that intersects the user buffer.
 			if (split_mr_begin > mr->mr_begin) {
@@ -610,9 +608,9 @@ static inline void __mem_range_dump_rb(void)
 	struct rb_node *mr_node;
 	struct mem_range *next_range;
 	unsigned int list_size = 0;
-	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
+
+	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG)
 		return;
-	}
 	printk(KERN_INFO
 	       "[SafeFetch][ModuleDebug]>====Start of mem_range_dump(RBTREE)====<\n");
 	mr_node = rb_first(&SAFEFETCH_HEAD_NODE_RB(current));
@@ -644,9 +642,9 @@ static inline void __dump_range_rb(unsigned long long start)
 	struct rb_node *mr_node;
 	struct mem_range *next_range;
 	int i, size;
-	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
+
+	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG)
 		return;
-	}
 	printk(KERN_INFO
 	       "[SafeFetch][ModuleDebug]>====Start of dump_range====<\n");
 	mr_node = rb_first(&SAFEFETCH_HEAD_NODE_RB(current));
@@ -656,9 +654,8 @@ static inline void __dump_range_rb(unsigned long long start)
 		if (next_range->mr_begin == start) {
 			size = next_range->mr_end - next_range->mr_begin + 1;
 			for (i = 0; i < size; i++) {
-				if ((i % 8) == 0) {
+				if ((i % 8) == 0)
 					printk("\n");
-				}
 				printk(KERN_CONT "0x%x ",
 				       *((unsigned char
 						  *)(next_range->mr_prot_loc +
@@ -682,6 +679,7 @@ static inline void __dump_range_stats_rb(int *range_size,
 	struct mem_range *next_range;
 	int rsize = 0;
 	uint64_t msize = 0;
+
 	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
 		*range_size = 0;
 		*avg_size = 0;
@@ -710,6 +708,7 @@ static inline void __dump_range_stats_extended_rb(int *range_size,
 	struct mem_range *next_range;
 	int rsize = 0;
 	uint64_t msize = 0, intermediate_size = 0;
+
 	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
 		*range_size = 0;
 		*min_size = 0;
@@ -728,12 +727,10 @@ static inline void __dump_range_stats_extended_rb(int *range_size,
 			next_range->mr_end - next_range->mr_begin + 1;
 		msize += intermediate_size;
 		rsize++;
-		if (intermediate_size > *max_size) {
+		if (intermediate_size > *max_size)
 			*max_size = intermediate_size;
-		}
-		if (*min_size == 0 || (*min_size > intermediate_size)) {
+		if (*min_size == 0 || (*min_size > intermediate_size))
 			*min_size = intermediate_size;
-		}
 		mr_node = rb_next(&SAFEFETCH_MR_NODE_RB(next_range));
 	} while (mr_node);
 
@@ -819,9 +816,8 @@ static inline struct mem_range *__search_range_rb(unsigned long long user_begin,
 			while ((mr_node = rb_prev(mr_node))) {
 				prev_range = rb_entry(mr_node, struct mem_range,
 						      SAFEFETCH_NODE_MEMBER_RB);
-				if (prev_range->mr_end < user_begin) {
+				if (prev_range->mr_end < user_begin)
 					break;
-				}
 				next_range = prev_range;
 			}
 			next_range->overlapping = df_range_overlaps;
@@ -862,7 +858,7 @@ static inline void __defragment_mr_rb(struct mem_range *new_mr,
 		// If not this is past the user buffer address so simply break the loop
 		// as all remaining ranges are past this.
 		if (mr->mr_end > new_mr->mr_end) {
-			// The begining of the new Split mr will be new_mr->mr_end + 1.
+			// The beginning of the new Split mr will be new_mr->mr_end + 1.
 			split_mr_begin = new_mr->mr_end + 1;
 			// Split mr only if this is the last mr that intersects the user buffer.
 			if (split_mr_begin > mr->mr_begin) {
@@ -916,9 +912,8 @@ static inline void __defragment_mr_rb(struct mem_range *new_mr,
 		}
 
 		// Erase the node in the previous iteration
-		if (prev_node) {
+		if (prev_node)
 			rb_erase(prev_node, &SAFEFETCH_HEAD_NODE_RB(current));
-		}
 
 		/* Copy previous mr to the new mr */
 		mr_offset = mr->mr_begin - new_mr->mr_begin;
@@ -999,10 +994,9 @@ struct mem_range *search_range(unsigned long long user_begin,
 #endif
 	/* We could replace this with a bit check on the current struct */
 	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
-		/* Laizy initialization of metadata/data regions */
-		if (unlikely(!initialize_regions())) {
+		/* Lazy initialization of metadata/data regions */
+		if (unlikely(!initialize_regions()))
 			return NULL;
-		}
 		SAFEFETCH_MEM_RANGE_ROOT_INIT_LL();
 		return NULL;
 	}
@@ -1063,9 +1057,8 @@ struct mem_range *search_range(unsigned long long user_begin,
 #endif
 
 	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
-		if (unlikely(!initialize_regions())) {
+		if (unlikely(!initialize_regions()))
 			return NULL;
-		}
 		SAFEFETCH_MEM_RANGE_ROOT_INIT_RB();
 		return NULL;
 	}
@@ -1104,7 +1097,7 @@ void dump_range_stats_extended(int *range_size, uint64_t *min_size,
 }
 
 #if defined(SAFEFETCH_PIN_BUDDY_PAGES) && defined(SAFEFETCH_DEBUG_PINNING)
-void check_pins()
+void check_pins(void)
 {
 	__check_pins_rb();
 }
@@ -1114,7 +1107,7 @@ void check_pins()
 
 #else
 // NOTES: Adaptive implementation hooks.
-#define CONVERT_LIMIT SAFEFETCH_ADAPTIVE_WATERMARK + 1
+#define CONVERT_LIMIT (SAFEFETCH_ADAPTIVE_WATERMARK + 1)
 
 noinline void convert_to_rbtree(uint8_t nelem)
 {
@@ -1199,10 +1192,9 @@ __search_range_adaptive(unsigned long long user_begin,
 
 	/* We could replace this with a bit check on the current struct */
 	if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
-		/* Laizy initialization of metadata/data regions */
-		if (unlikely(!initialize_regions())) {
+		/* Lazy initialization of metadata/data regions */
+		if (unlikely(!initialize_regions()))
 			return NULL;
-		}
 		SAFEFETCH_MEM_RANGE_ROOT_INIT_LL();
 		SAFEFETCH_RESET_ADAPTIVE(current);
 		SAFEFETCH_RESET_COPIES(current);
@@ -1334,9 +1326,7 @@ struct mem_range *search_range(unsigned long long user_begin,
 	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_adaptive_key)
 	{
 		return __search_range_adaptive(user_begin, user_end);
-	}
-	else
-	{
+	} else {
 		// If the rb-tree key is on make this branch unlikely so we incur
 		// one jump if we fall-through here (safefetch_adaptive_key == False)
 		// We will force a jump in the link list implementation by forcing
@@ -1345,22 +1335,18 @@ struct mem_range *search_range(unsigned long long user_begin,
 			safefetch_rbtree_key)
 		{
 			if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
-				if (unlikely(!initialize_regions())) {
+				if (unlikely(!initialize_regions()))
 					return NULL;
-				}
 				SAFEFETCH_MEM_RANGE_ROOT_INIT_RB();
 				return NULL;
 			}
 			return __search_range_rb(user_begin, user_end);
-		}
-		else
-		{
+		} else {
 			// The else branch is simply the link list implementation.
 			if (!SAFEFETCH_MEM_RANGE_INIT_FLAG) {
-				/* Laizy initialization of metadata/data regions */
-				if (unlikely(!initialize_regions())) {
+				/* Lazy initialization of metadata/data regions */
+				if (unlikely(!initialize_regions()))
 					return NULL;
-				}
 				SAFEFETCH_MEM_RANGE_ROOT_INIT_LL();
 				return NULL;
 			}
@@ -1376,9 +1362,7 @@ void defragment_mr(struct mem_range *new_mr, struct mem_range *mr)
 	{
 		__defragment_mr_adaptive(new_mr, mr);
 		return;
-	}
-	else
-	{
+	} else {
 		// If the rb-tree key is on make this branch unlikely so we incur
 		// one jump if we fall-through here (safefetch_adaptive_key == False)
 		// We will force a jump in the link list implementation by forcing
@@ -1388,9 +1372,7 @@ void defragment_mr(struct mem_range *new_mr, struct mem_range *mr)
 		{
 			__defragment_mr_rb(new_mr, mr);
 			return;
-		}
-		else
-		{
+		} else {
 			// The else branch is simply the link list implementation.
 			__defragment_mr_ll(new_mr, mr);
 			return;
@@ -1407,9 +1389,7 @@ void dump_range_stats(int *range_size, unsigned long long *avg_size)
 	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_adaptive_key)
 	{
 		__dump_range_stats_adaptive(range_size, avg_size);
-	}
-	else
-	{
+	} else {
 		// If the rb-tree key is on make this branch unlikely so we incur
 		// one jump if we fall-through here (safefetch_adaptive_key == False)
 		// We will force a jump in the link list implementation by forcing
@@ -1418,9 +1398,7 @@ void dump_range_stats(int *range_size, unsigned long long *avg_size)
 			safefetch_rbtree_key)
 		{
 			__dump_range_stats_rb(range_size, avg_size);
-		}
-		else
-		{
+		} else {
 			// The else branch is simply the link list implementation.
 			__dump_range_stats_ll(range_size, avg_size);
 		}
@@ -1434,9 +1412,7 @@ void mem_range_dump(void)
 	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_adaptive_key)
 	{
 		__mem_range_dump_adaptive();
-	}
-	else
-	{
+	} else {
 		// If the rb-tree key is on make this branch unlikely so we incur
 		// one jump if we fall-through here (safefetch_adaptive_key == False)
 		// We will force a jump in the link list implementation by forcing
@@ -1445,9 +1421,7 @@ void mem_range_dump(void)
 			safefetch_rbtree_key)
 		{
 			__mem_range_dump_rb();
-		}
-		else
-		{
+		} else {
 			// The else branch is simply the link list implementation.
 			__mem_range_dump_ll();
 		}
@@ -1461,9 +1435,7 @@ void dump_range(unsigned long long start)
 	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_adaptive_key)
 	{
 		__dump_range_adaptive(start);
-	}
-	else
-	{
+	} else {
 		// If the rb-tree key is on make this branch unlikely so we incur
 		// one jump if we fall-through here (safefetch_adaptive_key == False)
 		// We will force a jump in the link list implementation by forcing
@@ -1472,9 +1444,7 @@ void dump_range(unsigned long long start)
 			safefetch_rbtree_key)
 		{
 			__dump_range_rb(start);
-		}
-		else
-		{
+		} else {
 			// The else branch is simply the link list implementation.
 			__dump_range_ll(start);
 		}
@@ -1491,9 +1461,7 @@ void dump_range_stats_extended(int *range_size, uint64_t *min_size,
 	{
 		__dump_range_stats_extended_adaptive(
 			range_size, min_size, max_size, avg_size, total_size);
-	}
-	else
-	{
+	} else {
 		// If the rb-tree key is on make this branch unlikely so we incur
 		// one jump if we fall-through here (safefetch_adaptive_key == False)
 		// We will force a jump in the link list implementation by forcing
@@ -1504,9 +1472,7 @@ void dump_range_stats_extended(int *range_size, uint64_t *min_size,
 			__dump_range_stats_extended_rb(range_size, min_size,
 						       max_size, avg_size,
 						       total_size);
-		}
-		else
-		{
+		} else {
 			// The else branch is simply the link list implementation.
 			__dump_range_stats_extended_ll(range_size, min_size,
 						       max_size, avg_size,
@@ -1522,9 +1488,7 @@ void check_pins(void)
 	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_adaptive_key)
 	{
 		__check_pins_adaptive();
-	}
-	else
-	{
+	} else {
 		// If the rb-tree key is on make this branch unlikely so we incur
 		// one jump if we fall-through here (safefetch_adaptive_key == False)
 		// We will force a jump in the link list implementation by forcing
@@ -1533,9 +1497,7 @@ void check_pins(void)
 			safefetch_rbtree_key)
 		{
 			__check_pins_rb();
-		}
-		else
-		{
+		} else {
 			// The else branch is simply the link list implementation.
 			__check_pins_ll();
 		}
@@ -1580,14 +1542,16 @@ unsigned long copy_range(unsigned long long user_src,
 #endif
 
 	/* If no mr we either have no ranges previously copied from user or all ranges are
-       larger than this range. Add the range at begining of the list.
-       In case of a RB-Tree if mr == NULL then we have an empty RB-Tree so add
-       the new mr as root. */
+	 * larger than this range. Add the range at beginning of the list.
+	 * In case of a RB-Tree if mr == NULL then we have an empty RB-Tree so add
+	 * the new mr as root.
+	 */
 	if (!mr) {
 		/* Default to a normal copy and add range into the datastructure */
 
-		/* First copy everything in the kernel destination just in case we 
-            copy less then the specified ammount of bytes */
+		/* First copy everything in the kernel destination just in case we
+		 * copy less then the specified ammount of bytes
+		 */
 		ret = COPY_FUNC((void *)kern_dst, (__force void *)user_src,
 				user_size);
 
@@ -1607,7 +1571,7 @@ unsigned long copy_range(unsigned long long user_src,
 		/* Now simply returns -1 */
 		ASSERT_OUT_OF_MEMORY(new_mr);
 
-		/* Add the node at the begining */
+		/* Add the node at the beginning */
 		//list_add(&(new_mr->node), &(SAFEFETCH_HEAD_NODE));
 #ifdef SAFEFETCH_MEASURE_DEFENSE
 		MEASURE_FUNC(
@@ -1627,8 +1591,9 @@ unsigned long copy_range(unsigned long long user_src,
 			new_mr->mr_end - new_mr->mr_begin + 1);
 
 	} else if (mr->overlapping == df_range_previous) {
-		/* First copy everything in the kernel destination just in case we 
-            copy less then the specified ammount of bytes */
+		/* First copy everything in the kernel destination just in case we
+		 * copy less then the specified ammount of bytes
+		 */
 		ret = COPY_FUNC((void *)kern_dst, (__force void *)user_src,
 				user_size);
 
@@ -1771,14 +1736,16 @@ unsigned long copy_range_pinning(unsigned long long user_src,
 	mr = search_range(user_src, user_end);
 
 	/* If no mr we either have no ranges previously copied from user or all ranges are
-       larger than this range. Add the range at begining of the list.
-       In case of a RB-Tree if mr == NULL then we have an empty RB-Tree so add
-       the new mr as root. */
+	 * larger than this range. Add the range at beginning of the list.
+	 * In case of a RB-Tree if mr == NULL then we have an empty RB-Tree so add
+	 * the new mr as root.
+	 */
 	if (!mr) {
 		/* Default to a normal copy and add range into the datastructure */
 
-		/* First copy everything in the kernel destination just in case we 
-            copy less then the specified ammount of bytes */
+		/* First copy everything in the kernel destination just in case we
+		 * copy less then the specified ammount of bytes
+		 */
 		ret = COPY_FUNC((void *)kern_dst, (__force void *)user_src,
 				user_size);
 
@@ -1798,7 +1765,7 @@ unsigned long copy_range_pinning(unsigned long long user_src,
 		/* Now simply returns -1 */
 		ASSERT_OUT_OF_MEMORY(new_mr);
 
-		/* Add the node at the begining */
+		/* Add the node at the beginning */
 		//list_add(&(new_mr->node), &(SAFEFETCH_HEAD_NODE));
 		SAFEFETCH_MEM_RANGE_STRUCT_INSERT_ROOT(new_mr);
 
@@ -1809,8 +1776,9 @@ unsigned long copy_range_pinning(unsigned long long user_src,
 			new_mr->mr_end - new_mr->mr_begin + 1);
 
 	} else if (mr->overlapping == df_range_previous) {
-		/* First copy everything in the kernel destination just in case we 
-            copy less then the specified ammount of bytes */
+		/* First copy everything in the kernel destination just in case we
+		 * copy less then the specified ammount of bytes
+		 */
 		ret = COPY_FUNC((void *)kern_dst, (__force void *)user_src,
 				user_size);
 

@@ -191,6 +191,7 @@ static inline __must_check unsigned long
 _copy_from_user_no_dfcache(void *to, const void __user *from, unsigned long n)
 {
 	unsigned long res = n;
+
 	might_fault();
 	if (!should_fail_usercopy() && likely(access_ok(from, n))) {
 		instrument_copy_from_user_before(to, from, n);

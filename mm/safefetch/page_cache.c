@@ -6,9 +6,9 @@
 #include "page_cache.h"
 
 struct kmem_cache *df_metadata_cache, *df_storage_cache;
-size_t safefetch_metadata_cache_size = 0;
-size_t safefetch_storage_cache_size = 0;
-uint8_t safefetch_slow_path_order = 0;
+size_t safefetch_metadata_cache_size;
+size_t safefetch_storage_cache_size;
+uint8_t safefetch_slow_path_order;
 
 void df_init_page_alloc_array(void)
 {
@@ -31,7 +31,7 @@ static void fixup_in_tranzit_regions(void)
 {
 	struct task_struct *iter, *process;
 	unsigned int cleanups = 0;
-	unsigned long int wait_time;
+	unsigned long wait_time;
 	unsigned int state;
 
 	/* Wait such that all processes have enough time to shrink their regions */
@@ -91,11 +91,13 @@ void df_resize_page_caches(size_t _metadata_size, size_t _storage_size,
 			   uint8_t _order)
 {
 	/* First destroy all in tranzit safefetch regions such that taks will
-       pickup regions from the newly assigned slab caches */
+	 * pickup regions from the newly assigned slab caches
+	 */
 	fixup_in_tranzit_regions();
 
 	/* After this we can freely reinitialize the slab caches as no task should
-       be using them */
+	 * be using them
+	 */
 	if (_metadata_size != safefetch_metadata_cache_size) {
 		kmem_cache_destroy(df_metadata_cache);
 		df_metadata_cache = kmem_cache_create("df_metadata_cache",

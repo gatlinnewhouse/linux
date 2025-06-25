@@ -34,7 +34,7 @@ static int64_t make_int64(uint32_t high, uint32_t low)
 #define MEASURE_FUNC_AND_COUNT(code_to_measure, out_buffer, index) {				\
 	uint32_t cycles_low_before, cycles_high_before;						\
 	uint32_t cycles_low_after, cycles_high_after;						\
-	if (out_buffer)	       {								\
+	if (out_buffer) {									\
 		MEASURE_BEFORE(cycles_high_before, cycles_low_before);				\
 		do {										\
 			code_to_measure								\
@@ -45,8 +45,7 @@ static int64_t make_int64(uint32_t high, uint32_t low)
 			out_buffer[index++] = make_int64(cycles_high_after, cycles_low_after)	\
 			- make_int64(cycles_high_before, cycles_low_before) - rdmsr_ovr;	\
 		}										\
-	}											\
-	else {											\
+	} else {										\
 		code_to_measure									\
 	}											\
 }
@@ -56,19 +55,18 @@ static int64_t make_int64(uint32_t high, uint32_t low)
 #define MEASURE_FUNC(code_to_measure, out_buffer, index) {					\
 	uint32_t cycles_low_before, cycles_high_before;						\
 	uint32_t cycles_low_after, cycles_high_after;						\
-	if (out_buffer)	       {								\
-	   MEASURE_BEFORE(cycles_high_before, cycles_low_before);				\
-	   do {											\
-	  code_to_measure									\
-	   } while (0);										\
-	   MEASURE_AFTER(cycles_high_after, cycles_low_after);					\
+	if (out_buffer) {									\
+		MEASURE_BEFORE(cycles_high_before, cycles_low_before);				\
+		do {										\
+			code_to_measure								\
+		} while (0);									\
+		MEASURE_AFTER(cycles_high_after, cycles_low_after);				\
 												\
-	   if (index < SAFEFETCH_MEASURE_MAX) {							\
-	  out_buffer[index] = make_int64(cycles_high_after, cycles_low_after)			\
-		 - make_int64(cycles_high_before, cycles_low_before) - rdmsr_ovr;		\
-	   }											\
-	 }											\
-	 else {											\
-	  code_to_measure									\
-	 }											\
+		if (index < SAFEFETCH_MEASURE_MAX) {						\
+			out_buffer[index] = make_int64(cycles_high_after, cycles_low_after)	\
+			- make_int64(cycles_high_before, cycles_low_before) - rdmsr_ovr;	\
+		}										\
+	} else {										\
+		code_to_measure									\
+	}											\
 }

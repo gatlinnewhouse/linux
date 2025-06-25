@@ -12,8 +12,8 @@ char global_monitored_task[SAFEFETCH_MONITOR_TASK_SIZE] = { 'x', 'x', 'o',
 							    'x', 'o', 0 };
 int global_monitored_syscall = -2;
 uint64_t global_search_time[SAFEFETCH_MEASURE_MAX];
-uint64_t global_search_count = 0;
-uint64_t rdmsr_ovr = 0;
+uint64_t global_search_count;
+uint64_t rdmsr_ovr;
 EXPORT_SYMBOL(global_search_time);
 EXPORT_SYMBOL(global_search_count);
 EXPORT_SYMBOL(global_monitored_task);
@@ -129,6 +129,7 @@ char *sample_filter[FILTER_TOTAL_SIZE] = { "bw_",
 bool check_filter(void)
 {
 	int i;
+
 	for (i = 0; i < FILTER_TOTAL_SIZE; i++) {
 		if (strncmp(current->comm, sample_filter[i],
 			    strlen(sample_filter[i])) == 0) {
@@ -146,6 +147,7 @@ static inline void collect_sample(void)
 {
 	struct df_sample_struct sample;
 	struct df_sample_link *link;
+
 	link = kmalloc(sizeof(struct df_sample_link), GFP_KERNEL);
 	memset(&sample, 0, sizeof(struct df_sample_struct));
 	strncpy(sample.comm, current->comm, TASK_NAME_SIZE);
@@ -254,9 +256,8 @@ void df_debug_syscall_entry(int sys_nr, struct pt_regs *regs)
 // Return: None
 void df_debug_syscall_exit(void)
 {
-	if (current->df_stats.pending == PENDING_RESTART) {
+	if (current->df_stats.pending == PENDING_RESTART)
 		current->df_stats.pending = PENDING_RESTART_DELIVERED;
-	}
 #if defined(SAFEFETCH_DEBUG_COLLECT_SAMPLES) || \
 	defined(SAFEFETCH_MEASURE_MEMORY_CONSUMPTION)
 	SAFEFETCH_DEBUG_RUN(5, collect_sample());
@@ -289,9 +290,8 @@ inline int df_get_user1(unsigned long long user_src, unsigned char user_val,
 			unsigned long long kern_dst)
 {
 #ifdef SAFEFETCH_WHITELISTING
-	if (IS_WHITELISTED(current)) {
+	if (IS_WHITELISTED(current))
 		return 0;
-	}
 #endif
 	copy_range_loop((unsigned char *)user_src, user_val,
 			(unsigned char *)kern_dst);
@@ -307,9 +307,8 @@ inline int df_get_user2(unsigned long long user_src, unsigned short user_val,
 			unsigned long long kern_dst)
 {
 #ifdef SAFEFETCH_WHITELISTING
-	if (IS_WHITELISTED(current)) {
+	if (IS_WHITELISTED(current))
 		return 0;
-	}
 #endif
 	copy_range_loop((unsigned short *)user_src, user_val,
 			(unsigned short *)kern_dst);
@@ -325,9 +324,8 @@ inline int df_get_user4(unsigned long long user_src, unsigned int user_val,
 			unsigned long long kern_dst)
 {
 #ifdef SAFEFETCH_WHITELISTING
-	if (IS_WHITELISTED(current)) {
+	if (IS_WHITELISTED(current))
 		return 0;
-	}
 #endif
 	copy_range_loop((unsigned int *)user_src, user_val,
 			(unsigned int *)kern_dst);
@@ -343,9 +341,8 @@ inline int df_get_user8(unsigned long long user_src, unsigned long user_val,
 			unsigned long long kern_dst)
 {
 #ifdef SAFEFETCH_WHITELISTING
-	if (IS_WHITELISTED(current)) {
+	if (IS_WHITELISTED(current))
 		return 0;
-	}
 #endif
 	copy_range_loop((unsigned long *)user_src, user_val,
 			(unsigned long *)kern_dst);
@@ -358,13 +355,12 @@ inline int df_get_user8(unsigned long long user_src, unsigned long user_val,
 // Calling location: arch/x86/include/asm/uaccess.h:do_get_user_call
 // Return: Response code (-1 = failure)
 inline int df_get_useru8(unsigned long long user_src,
-			 long unsigned int user_val,
+			 unsigned int user_val,
 			 unsigned long long kern_dst)
 {
 #ifdef SAFEFETCH_WHITELISTING
-	if (IS_WHITELISTED(current)) {
+	if (IS_WHITELISTED(current))
 		return 0;
-	}
 #endif
 	copy_range_loop((unsigned long *)user_src, user_val,
 			(unsigned long *)kern_dst);
@@ -407,9 +403,8 @@ inline unsigned long df_copy_from_user(unsigned long long user_src,
 	}
 #endif
 
-	if (unlikely(!user_size)) {
+	if (unlikely(!user_size))
 		return 0;
-	}
 
 	ret = copy_range(user_src, kern_dst, user_size);
 
@@ -455,9 +450,8 @@ inline unsigned long df_copy_from_user_pinning(unsigned long long user_src,
 	}
 #endif
 
-	if (unlikely(!user_size)) {
+	if (unlikely(!user_size))
 		return 0;
-	}
 
 	ret = copy_range_pinning(user_src, kern_dst, user_size);
 

@@ -18,10 +18,10 @@ struct region_allocator {
 #define BYTE_GRANULARITY(allocator) allocator->region_size
 
 #define ASSERT_ALLOCATION_FAILURE(region, message) { \
-  if (unlikely(!region)) {                           \
-	 printk(KERN_EMERG message);                 \
-	 return 0;                                   \
-  }                                                  \
+	if (unlikely(!region)) {                           \
+		printk(KERN_EMERG message);                 \
+		return 0;                                   \
+	}                                                  \
 }
 
 
@@ -48,11 +48,11 @@ struct mem_pin {
 
 #define REGION_PTR(region) region->ptr
 #define REGION_REMAINING_BYTES(region) region->remaining
-#define REGION_RANGES(region) &(region->extra_ranges)
-#define REGION_FREELIST(region) &(region->free_ranges)
+#define REGION_RANGES(region) (&(region->extra_ranges))
+#define REGION_FREELIST(region) (&(region->free_ranges))
 
 #ifdef SAFEFETCH_PIN_BUDDY_PAGES
-#define PIN_LINK(pin) &(pin->pin_link)
+#define PIN_LINK(pin) (&(pin->pin_link))
 #endif
 
 #ifdef SAFEFETCH_MEASURE_MEMORY_CONSUMPTION
@@ -131,16 +131,16 @@ struct mem_range {
 };
 
 
-#define REGION_LOW_WATERMARK sizeof(struct mem_range) 
+#define REGION_LOW_WATERMARK sizeof(struct mem_range)
 
 
 bool init_region_allocator(struct region_allocator *allocator, u8 cache_type);
 void shrink_region(struct region_allocator *allocator);
 void destroy_region(struct region_allocator *allocator);
-void* allocate_from_region(struct region_allocator *allocator, size_t alloc_size);
+void *allocate_from_region(struct region_allocator *allocator, size_t alloc_size);
 
 #ifdef SAFEFETCH_PIN_BUDDY_PAGES
-void* pin_compound_pages(struct region_allocator *allocator, void *kern_loc);
+void *pin_compound_pages(struct region_allocator *allocator, void *kern_loc);
 #endif
 
 #ifdef SAFEFETCH_DEBUG
@@ -161,22 +161,22 @@ void dump_region_stats(int *mregions, int *dregions, int *dkmalloc, size_t *dkma
 
 #ifdef DFCACHER_INLINE_FUNCTIONS
 // Called on syscall exit to remove extra regions except one.
-#define reset_regions(){                                      \
-    if (SAFEFETCH_MEM_RANGE_INIT_FLAG) {                      \
-       shrink_region(DF_CUR_STORAGE_REGION_ALLOCATOR);        \
-       shrink_region(DF_CUR_METADATA_REGION_ALLOCATOR);       \
-       SAFEFETCH_RESET_MEM_RANGE();                           \
-    }                                                         \
+#define reset_regions() {                                      \
+	if (SAFEFETCH_MEM_RANGE_INIT_FLAG) {                      \
+		shrink_region(DF_CUR_STORAGE_REGION_ALLOCATOR);        \
+		shrink_region(DF_CUR_METADATA_REGION_ALLOCATOR);       \
+		SAFEFETCH_RESET_MEM_RANGE();                           \
+	}                                                         \
 }
 // Called on process exit to destroy regions.
-#define destroy_regions(){                                 \
-    destroy_region(DF_CUR_STORAGE_REGION_ALLOCATOR);       \
-    destroy_region(DF_CUR_METADATA_REGION_ALLOCATOR);      \
-    SAFEFETCH_RESET_MEM_RANGE();                           \
+#define destroy_regions() {                                 \
+	destroy_region(DF_CUR_STORAGE_REGION_ALLOCATOR);       \
+	destroy_region(DF_CUR_METADATA_REGION_ALLOCATOR);      \
+	SAFEFETCH_RESET_MEM_RANGE();                           \
 }
 // Called by DFCACHE's memory range subsistem to initialize regions used to allocate memory ranges
-#define initialize_regions() init_region_allocator(DF_CUR_METADATA_REGION_ALLOCATOR, METADATA) &&  \
-			     init_region_allocator(DF_CUR_STORAGE_REGION_ALLOCATOR, STORAGE)
+#define initialize_regions() (init_region_allocator(DF_CUR_METADATA_REGION_ALLOCATOR, METADATA) &&  \
+			     init_region_allocator(DF_CUR_STORAGE_REGION_ALLOCATOR, STORAGE))
 
 #else
 noinline void reset_regions(void);

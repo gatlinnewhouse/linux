@@ -146,8 +146,7 @@ raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
 	if (static_branch_unlikely(&safefetch_copy_from_user_key)) {
 		// Insert user data into protection mechanism and then into the kernel destination
 		return df_copy_from_user((unsigned long long)src, (unsigned long long)dst, size);
-	} 
-	else {
+	} else {
 		return copy_user_generic(dst, (__force void *)src, size);
 	}
 }
@@ -155,8 +154,8 @@ raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
 static __always_inline __must_check unsigned long
 raw_copy_from_user(void *dst, const void __user *src, unsigned long size)
 {
-	 // Insert user data into protection mechanism and then into the kernel destination
-	 return df_copy_from_user((unsigned long long)src, (unsigned long long)dst, size);
+	// Insert user data into protection mechanism and then into the kernel destination
+	return df_copy_from_user((unsigned long long)src, (unsigned long long)dst, size);
 }
 #endif
 
@@ -169,8 +168,7 @@ raw_copy_from_user_pinning(void *dst, const void __user *src, unsigned long size
 	if (static_branch_unlikely(&safefetch_copy_from_user_key)) {
 		// Insert user data into protection mechanism and then into the kernel destination
 		return df_copy_from_user_pinning((unsigned long long)src, (unsigned long long)dst, size);
-	} 
-	else {
+	} else {
 		return copy_user_generic(dst, (__force void *)src, size);
 	}
 }
@@ -178,8 +176,8 @@ raw_copy_from_user_pinning(void *dst, const void __user *src, unsigned long size
 static __always_inline __must_check unsigned long
 raw_copy_from_user_pinning(void *dst, const void __user *src, unsigned long size)
 {
-	 // Insert user data into protection mechanism and then into the kernel destination
-	 return df_copy_from_user_pinning((unsigned long long)src, (unsigned long long)dst, size);
+	// Insert user data into protection mechanism and then into the kernel destination
+	return df_copy_from_user_pinning((unsigned long long)src, (unsigned long long)dst, size);
 }
 #endif
 #endif
@@ -187,7 +185,7 @@ raw_copy_from_user_pinning(void *dst, const void __user *src, unsigned long size
 static __always_inline __must_check unsigned long
 raw_copy_from_user_no_dfcache(void *dst, const void __user *src, unsigned long size)
 {
-	 return copy_user_generic(dst, (__force void *)src, size);
+	return copy_user_generic(dst, (__force void *)src, size);
 }
 #else
 static __always_inline __must_check unsigned long
