@@ -99,17 +99,17 @@ static __always_inline bool do_syscall_x32(struct pt_regs *regs, int nr)
 __visible noinstr bool do_syscall_64(struct pt_regs *regs, int nr)
 {
 	add_random_kstack_offset();
-        // If interrupts using current execute prior to the next syscall
-        // then we will enter the syscall with the mem_range intialized
-        // we could chose to clean this info (shrink_region) or simply
-        // trust that the interrupt doesn't fetch something nasty and just
-        // operate the next syscall on the interrupt state (happens for
-        // sigaction calls mostly during IPI's that save the signal frame
-        // prior to executing a sigaction call). Or simply clear state
-        // on irq end (might slow down irqs so avoid this).
+	// If interrupts using current execute prior to the next syscall
+	// then we will enter the syscall with the mem_range intialized
+	// we could chose to clean this info (shrink_region) or simply
+	// trust that the interrupt doesn't fetch something nasty and just
+	// operate the next syscall on the interrupt state (happens for
+	// sigaction calls mostly during IPI's that save the signal frame
+	// prior to executing a sigaction call). Or simply clear state
+	// on irq end (might slow down irqs so avoid this).
 #if defined(CONFIG_SAFEFETCH)
 	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key) {
-		if (unlikely(SAFEFETCH_MEM_RANGE_INIT_FLAG)){
+		if (unlikely(SAFEFETCH_MEM_RANGE_INIT_FLAG)) {
 			// An IPI probably sent us a signal and the signal
 			// enabled the defense in interrupt context. Reset
 			// dfcache interrupt state.
@@ -475,7 +475,7 @@ __visible noinstr bool do_fast_syscall_32(struct pt_regs *regs)
 {
 	/*
 	 * Called using the internal vDSO SYSENTER/SYSCALL32 calling
-	 * convention.  Adjust regs so it looks like we entered using int80.
+	 * convention.	Adjust regs so it looks like we entered using int80.
 	 */
 	unsigned long landing_pad = (unsigned long)current->mm->context.vdso +
 					vdso_image_32.sym_int80_landing_pad;

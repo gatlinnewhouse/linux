@@ -162,54 +162,54 @@ static ssize_t adaptive_watermark_ctrl_store(struct kobject *kobj,
 
 #if 0
 static ssize_t defense_full_ctrl_show(struct kobject *kobj, 
-                struct kobj_attribute *attr, char *buf)
+		struct kobj_attribute *attr, char *buf)
 {
     return sprintf(buf, "%d", defense_full_ctrl);
 }
 
 // TODO, this sysfs entry is deprecated. Remove it.
 static ssize_t defense_full_ctrl_store(struct kobject *kobj, 
-                struct kobj_attribute *attr,const char *buf, size_t count)
+		struct kobj_attribute *attr,const char *buf, size_t count)
 {
-        int val;
-        sscanf(buf,"%d",&val);
+	int val;
+	sscanf(buf,"%d",&val);
 
-        if (val == defense_full_ctrl){
-            return count;
-        }
+	if (val == defense_full_ctrl){
+	    return count;
+	}
 
-        if (val == 0) { // Linked list configuration
-            static_branch_disable(&safefetch_copy_from_user_key);
-            static_branch_disable(&safefetch_hooks_key);
-            static_branch_disable(&safefetch_adaptive_key);
-            static_branch_disable(&safefetch_rbtree_key);
-            static_branch_enable(&safefetch_hooks_key);
-            static_branch_enable(&safefetch_copy_from_user_key);
-        } else if (val == 1) { // RB-Tree configuration.
-            static_branch_disable(&safefetch_copy_from_user_key);
-            static_branch_disable(&safefetch_hooks_key);
-            static_branch_disable(&safefetch_adaptive_key);
-            static_branch_enable(&safefetch_rbtree_key);
-            static_branch_enable(&safefetch_hooks_key);
-            static_branch_enable(&safefetch_copy_from_user_key);
-        } else if (val == 2) { // Adaptive configuration
-            static_branch_disable(&safefetch_copy_from_user_key);
-            static_branch_disable(&safefetch_hooks_key);
-            static_branch_enable(&safefetch_adaptive_key);
-            static_branch_disable(&safefetch_rbtree_key);
-            static_branch_enable(&safefetch_hooks_key);
-            static_branch_enable(&safefetch_copy_from_user_key);
-        } else if (val == 3) { // Full disable
-            static_branch_disable(&safefetch_copy_from_user_key);
-            static_branch_disable(&safefetch_hooks_key);
-        } else if (val == 4) { // Full disable
-            static_branch_enable(&safefetch_hooks_key);
-            static_branch_enable(&safefetch_copy_from_user_key);
-        }
+	if (val == 0) { // Linked list configuration
+	    static_branch_disable(&safefetch_copy_from_user_key);
+	    static_branch_disable(&safefetch_hooks_key);
+	    static_branch_disable(&safefetch_adaptive_key);
+	    static_branch_disable(&safefetch_rbtree_key);
+	    static_branch_enable(&safefetch_hooks_key);
+	    static_branch_enable(&safefetch_copy_from_user_key);
+	} else if (val == 1) { // RB-Tree configuration.
+	    static_branch_disable(&safefetch_copy_from_user_key);
+	    static_branch_disable(&safefetch_hooks_key);
+	    static_branch_disable(&safefetch_adaptive_key);
+	    static_branch_enable(&safefetch_rbtree_key);
+	    static_branch_enable(&safefetch_hooks_key);
+	    static_branch_enable(&safefetch_copy_from_user_key);
+	} else if (val == 2) { // Adaptive configuration
+	    static_branch_disable(&safefetch_copy_from_user_key);
+	    static_branch_disable(&safefetch_hooks_key);
+	    static_branch_enable(&safefetch_adaptive_key);
+	    static_branch_disable(&safefetch_rbtree_key);
+	    static_branch_enable(&safefetch_hooks_key);
+	    static_branch_enable(&safefetch_copy_from_user_key);
+	} else if (val == 3) { // Full disable
+	    static_branch_disable(&safefetch_copy_from_user_key);
+	    static_branch_disable(&safefetch_hooks_key);
+	} else if (val == 4) { // Full disable
+	    static_branch_enable(&safefetch_hooks_key);
+	    static_branch_enable(&safefetch_copy_from_user_key);
+	}
 
-        defense_full_ctrl = val;
+	defense_full_ctrl = val;
 
-        return count;
+	return count;
 }
 #endif
 

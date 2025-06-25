@@ -160,7 +160,7 @@ static enum bug_trap_type __report_bug(unsigned long bugaddr, struct pt_regs *re
 	const char *file;
 	unsigned line, warning, once, done;
 #if defined(SAFEFETCH_DEBUG)
-        current->df_stats.traced = 1;
+	current->df_stats.traced = 1;
 #endif
 
 	if (!is_valid_bugaddr(bugaddr))
@@ -202,7 +202,7 @@ static enum bug_trap_type __report_bug(unsigned long bugaddr, struct pt_regs *re
 		__warn(file, line, (void *)bugaddr, BUG_GET_TAINT(bug), regs,
 		       NULL);
 #if defined(SAFEFETCH_DEBUG) 
-                current->df_stats.traced = 0;
+		current->df_stats.traced = 0;
 #endif
 		return BUG_TRAP_TYPE_WARN;
 	}
@@ -214,7 +214,7 @@ static enum bug_trap_type __report_bug(unsigned long bugaddr, struct pt_regs *re
 			(void *)bugaddr);
 
 #if defined(SAFEFETCH_DEBUG)
-        current->df_stats.traced = 0;
+	current->df_stats.traced = 0;
 #endif
 
 	return BUG_TRAP_TYPE_BUG;

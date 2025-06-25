@@ -957,8 +957,8 @@ void start_kernel(void)
 	mm_core_init();
 	poking_init();
 #ifdef CONFIG_SAFEFETCH
-        #include <linux/safefetch.h>
-        df_startup();
+	#include <linux/safefetch.h>
+	df_startup();
 #endif
 	ftrace_init();
 
@@ -1100,7 +1100,7 @@ void start_kernel(void)
 	kcsan_init();
 
 #if defined(SAFEFETCH_DEBUG) || defined(SAFEFETCH_STATIC_KEYS)
-        df_sysfs_init();
+	df_sysfs_init();
 #endif
 	/* Do the rest non-__init'ed, we're now alive */
 	rest_init();

@@ -1215,7 +1215,7 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 
 #ifdef CONFIG_SAFEFETCH
        IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_hooks_key){
-        df_task_dup(tsk);
+	df_task_dup(tsk);
        }
 #ifdef SAFEFETCH_DEBUG
        WARN_ON(SAFEFETCH_TASK_MEM_RANGE_INIT_FLAG(tsk));

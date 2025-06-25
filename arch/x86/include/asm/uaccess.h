@@ -90,12 +90,12 @@ extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val
 			 unsigned long long kern_dst);
 
 // This macro returns the smallest possible get_user function based on value x
-#define __dfgetuserfunc(x)                                                  \
-    __dfgetuserfuncfits(x,char,df_get_user1,			                    \
-	  __dfgetuserfuncfits(x,short,df_get_user2,			                    \
-	    __dfgetuserfuncfits(x,int,df_get_user4,                             \
-	        __dfgetuserfuncfits(x,long,df_get_user8,                        \
-                df_get_useru8))))
+#define __dfgetuserfunc(x)							\
+	__dfgetuserfuncfits(x, char, df_get_user1,				\
+		__dfgetuserfuncfits(x, short, df_get_user2,			\
+			__dfgetuserfuncfits(x, int, df_get_user4,			\
+				__dfgetuserfuncfits(x, long, df_get_user8,	\
+							df_get_useru8))))
 
 // This macro will deduce the best double fetch get_user protection function,
 // based on the register content
@@ -112,54 +112,54 @@ extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val
 // ptr = source
 #define do_get_user_call(fn,x,ptr)					     \
 ({ \
-    /* __ret_gu = the return value from the copy from user function */  \
-	int __ret_gu;							             \
-    /*  register  = compiler hint to store it into a register instead of RAM                  \
-     *  __inttype = func that gets the smallest variable type that fits the source            \
-     *  __val_gu  = intermediate storage of user obtained variable                            \
-     *  Obtain a register with a size equal to *ptr and store the user data pointer inside it \
-     *  */                                               \
-    register __inttype(*(ptr)) __val_gu asm("%"_ASM_DX); \
-    /* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
-    __chk_user_ptr(ptr);						         \
-    /* asm                  := assembly instruction
-     * volatile             := no optimizations
-     *
-     * Assembler template:
-     * "call"          := issue a call assembly instruction
-     * "__" #fn "_%P4" := stringbuilder that creates the right __get_user_X function name
-     *                    based on size of ptr
-     * %P4             := Take fourth variable value as literal string
-     *
-     * Output operands:
-     * "=a" (__ret_gu)     := overwrite (=) the address register (a) __ret_gu
-     * "=r" (__val_gu)     := overwrite (=) the general register (r) __val_gu
-     * ASM_CALL_CONSTRAINT := Constraint that forces the right execution order of inline asm
-     *
-     * Input operands:
-     * "0" (ptr)            := first argument, the user space source address
-     * "i" (sizeof(*(ptr))) := second argument, the size of user space data that must be copied
-     *
-     * This function calls one of the __get_user_X functions based on the size of the ptr data
-     * This copies the data from user space into the temporary variable __val_gu
-     * The result of this operation is stored in the variable __ret_gu
-     * */ \
-        asm volatile("call __" #fn "_%P4"				                  \
-		     : "=a" (__ret_gu), "=r" (__val_gu),		                  \
-			ASM_CALL_CONSTRAINT				                  \
-		     : "0" (ptr), "i" (sizeof(*(ptr))));		                  \
+	/* __ret_gu = the return value from the copy from user function */	\
+	int __ret_gu;								     \
+	/*	register  = compiler hint to store it into a register instead of RAM		      \
+	*	__inttype = func that gets the smallest variable type that fits the source	      \
+	*	__val_gu  = intermediate storage of user obtained variable			      \
+	*	Obtain a register with a size equal to *ptr and store the user data pointer inside it \
+	*/						 \
+	register __inttype(*(ptr)) __val_gu asm("%"_ASM_DX); \
+	/* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
+	__chk_user_ptr(ptr);							 \
+	/* asm		    := assembly instruction
+	* volatile		    := no optimizations
+	*
+	* Assembler template:
+	* "call"	       := issue a call assembly instruction
+	* "__" #fn "_%P4" := stringbuilder that creates the right __get_user_X function name
+	*			  based on size of ptr
+	* %P4	       := Take fourth variable value as literal string
+	*
+	* Output operands:
+	* "=a" (__ret_gu)	   := overwrite (=) the address register (a) __ret_gu
+	* "=r" (__val_gu)	   := overwrite (=) the general register (r) __val_gu
+	* ASM_CALL_CONSTRAINT := Constraint that forces the right execution order of inline asm
+	*
+	* Input operands:
+	* "0" (ptr)	    := first argument, the user space source address
+	* "i" (sizeof(*(ptr))) := second argument, the size of user space data that must be copied
+	*
+	* This function calls one of the __get_user_X functions based on the size of the ptr data
+	* This copies the data from user space into the temporary variable __val_gu
+	* The result of this operation is stored in the variable __ret_gu
+	*/ \
+	asm volatile("call __" #fn "_%P4"						  \
+		     : "=a" (__ret_gu), "=r" (__val_gu),				  \
+			ASM_CALL_CONSTRAINT						  \
+		     : "0" (ptr), "i" (sizeof(*(ptr))));				  \
 	instrument_get_user(__val_gu);					\
-     /* Casts the variable inside __val_gu to the correct type and stores it inside
-     * the kernel destionation 'x'
-     * */                                                                                                                 \
-	(x) = (__force __typeof__(*(ptr))) __val_gu;	                                                                  \
-        IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_copy_from_user_key) {                                        \
-          if(GET_USER_CALL_CHECK(__ret_gu)) {                                                                                         \
-             __ret_gu = __dfgetuserfunc(*(ptr))((unsigned long long)(ptr), __val_gu, (unsigned long long)(&x)) ;          \
-          }                                                                                                               \
-        }                                                                                                                 \
+	/* Casts the variable inside __val_gu to the correct type and stores it inside
+	* the kernel destionation 'x'
+	* */														  \
+	(x) = (__force __typeof__(*(ptr))) __val_gu;									  \
+	IF_SAFEFETCH_STATIC_BRANCH_UNLIKELY_WRAPPER(safefetch_copy_from_user_key) {					   \
+	  if(GET_USER_CALL_CHECK(__ret_gu)) {											      \
+	     __ret_gu = __dfgetuserfunc(*(ptr))((unsigned long long)(ptr), __val_gu, (unsigned long long)(&x)) ;	  \
+	  }														  \
+	}														  \
 	/* Integrity check that expects a 0 as value for __ret_gu (call successfull) */ \
-       __builtin_expect(__ret_gu, 0);					    \
+	  __builtin_expect(__ret_gu, 0);					    \
 })
 
 // fn  = get_user function name template
@@ -167,49 +167,49 @@ extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val
 // ptr = source
 #define do_get_user_call_no_dfcache(fn,x,ptr)					     \
 ({ \
-    /* __ret_gu = the return value from the copy from user function */  \
-	int __ret_gu;							             \
-    /*  register  = compiler hint to store it into a register instead of RAM                  \
-     *  __inttype = func that gets the smallest variable type that fits the source            \
-     *  __val_gu  = intermediate storage of user obtained variable                            \
-     *  Obtain a register with a size equal to *ptr and store the user data pointer inside it \
-     *  */                                               \
-    register __inttype(*(ptr)) __val_gu asm("%"_ASM_DX); \
-    /* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
-    __chk_user_ptr(ptr);						         \
-    /* asm                  := assembly instruction
-     * volatile             := no optimizations
-     *
-     * Assembler template:
-     * "call"          := issue a call assembly instruction
-     * "__" #fn "_%P4" := stringbuilder that creates the right __get_user_X function name
-     *                    based on size of ptr
-     * %P4             := Take fourth variable value as literal string
-     *
-     * Output operands:
-     * "=a" (__ret_gu)     := overwrite (=) the address register (a) __ret_gu
-     * "=r" (__val_gu)     := overwrite (=) the general register (r) __val_gu
-     * ASM_CALL_CONSTRAINT := Constraint that forces the right execution order of inline asm
-     *
-     * Input operands:
-     * "0" (ptr)            := first argument, the user space source address
-     * "i" (sizeof(*(ptr))) := second argument, the size of user space data that must be copied
-     *
-     * This function calls one of the __get_user_X functions based on the size of the ptr data
-     * This copies the data from user space into the temporary variable __val_gu
-     * The result of this operation is stored in the variable __ret_gu
-     * */ \
+	/* __ret_gu = the return value from the copy from user function */	\
+	int __ret_gu;								     \
+	/*	register  = compiler hint to store it into a register instead of RAM		      \
+	*	__inttype = func that gets the smallest variable type that fits the source	      \
+	*	__val_gu  = intermediate storage of user obtained variable			      \
+	*	Obtain a register with a size equal to *ptr and store the user data pointer inside it \
+	*	*/						 \
+	register __inttype(*(ptr)) __val_gu asm("%"_ASM_DX); \
+	/* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
+	__chk_user_ptr(ptr);							 \
+	/* asm		    := assembly instruction
+	* volatile		    := no optimizations
+	*
+	* Assembler template:
+	* "call"	       := issue a call assembly instruction
+	* "__" #fn "_%P4" := stringbuilder that creates the right __get_user_X function name
+	*			  based on size of ptr
+	* %P4	       := Take fourth variable value as literal string
+	*
+	* Output operands:
+	* "=a" (__ret_gu)	   := overwrite (=) the address register (a) __ret_gu
+	* "=r" (__val_gu)	   := overwrite (=) the general register (r) __val_gu
+	* ASM_CALL_CONSTRAINT := Constraint that forces the right execution order of inline asm
+	*
+	* Input operands:
+	* "0" (ptr)	    := first argument, the user space source address
+	* "i" (sizeof(*(ptr))) := second argument, the size of user space data that must be copied
+	*
+	* This function calls one of the __get_user_X functions based on the size of the ptr data
+	* This copies the data from user space into the temporary variable __val_gu
+	* The result of this operation is stored in the variable __ret_gu
+	* */ \
 	asm volatile("call __" #fn "_%P4"				    \
 		     : "=a" (__ret_gu), "=r" (__val_gu),		\
-			ASM_CALL_CONSTRAINT				            \
+			ASM_CALL_CONSTRAINT					    \
 		     : "0" (ptr), "i" (sizeof(*(ptr))));		\
-     /* Casts the variable inside __val_gu to the correct type and stores it inside
-     * the kernel destionation 'x'
-     * */                                               \
+	/* Casts the variable inside __val_gu to the correct type and stores it inside
+	* the kernel destionation 'x'
+	* */						\
 	instrument_get_user(__val_gu);					\
 	(x) = (__force __typeof__(*(ptr))) __val_gu;	    \
 	/* Integrity check that expects a 0 as value for __ret_gu (call successfull) */ \
-    __builtin_expect(__ret_gu, 0);					    \
+	__builtin_expect(__ret_gu, 0);					    \
 })
 
 #define get_user_no_dfcache(x,ptr) ({ might_fault(); do_get_user_call_no_dfcache(get_user,x,ptr); })
@@ -227,47 +227,47 @@ extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val
 // ptr = source
 #define do_get_user_call(fn,x,ptr)					\
 ({									\
-    /* __ret_gu = the return value from the copy from user function */  \
+	/* __ret_gu = the return value from the copy from user function */	\
 	int __ret_gu;							\
-    /*  register  = compiler hint to store it into a register instead of RAM                  \
-     *  __inttype = func that gets the smallest variable type that fits the source            \
-     *  __val_gu  = intermediate storage of user obtained variable                            \
-     *  Obtain a register with a size equal to *ptr and store the user data pointer inside it \
-     *  */                                               \
+	/*	register  = compiler hint to store it into a register instead of RAM		      \
+	*	__inttype = func that gets the smallest variable type that fits the source	      \
+	*	__val_gu  = intermediate storage of user obtained variable			      \
+	*	Obtain a register with a size equal to *ptr and store the user data pointer inside it \
+	*	*/						 \
 	register __inttype(*(ptr)) __val_gu asm("%"_ASM_DX);		\
-    /* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
+	/* Sparse integrity check, checks is a ptr is in fact a pointer to user space */ \
 	__chk_user_ptr(ptr);						\
-    /* asm                  := assembly instruction
-     * volatile             := no optimizations
-     *
-     * Assembler template:
-     * "call"               := issue a call assembly instruction
-     * "__" #fn "_%c[size]" := stringbuilder that creates the right __get_user_X function name
-     *                         based on size of ptr
-     * %c[size]             := Take fourth variable value as literal string with
-     *                         named argument size per 8c860ed
-     *
-     * Output operands:
-     * "=a" (__ret_gu)     := overwrite (=) the address register (a) __ret_gu
-     * "=r" (__val_gu)     := overwrite (=) the general register (r) __val_gu
-     * ASM_CALL_CONSTRAINT := Constraint that forces the right execution order of inline asm
-     *
-     * Input operands:
-     * "0" (ptr)            := first argument, the user space source address
-     * "i" (sizeof(*(ptr))) := second argument, the size of user space data that must be copied
-     *
-     * This function calls one of the __get_user_X functions based on the size of the ptr data
-     * This copies the data from user space into the temporary variable __val_gu
-     * The result of this operation is stored in the variable __ret_gu
-     * */ \
+	/* asm		    := assembly instruction
+	* volatile		    := no optimizations
+	*
+	* Assembler template:
+	* "call"		    := issue a call assembly instruction
+	* "__" #fn "_%c[size]" := stringbuilder that creates the right __get_user_X function name
+	*			       based on size of ptr
+	* %c[size]		    := Take fourth variable value as literal string with
+	*			       named argument size per 8c860ed
+	*
+	* Output operands:
+	* "=a" (__ret_gu)	   := overwrite (=) the address register (a) __ret_gu
+	* "=r" (__val_gu)	   := overwrite (=) the general register (r) __val_gu
+	* ASM_CALL_CONSTRAINT := Constraint that forces the right execution order of inline asm
+	*
+	* Input operands:
+	* "0" (ptr)	    := first argument, the user space source address
+	* "i" (sizeof(*(ptr))) := second argument, the size of user space data that must be copied
+	*
+	* This function calls one of the __get_user_X functions based on the size of the ptr data
+	* This copies the data from user space into the temporary variable __val_gu
+	* The result of this operation is stored in the variable __ret_gu
+	* */ \
 	asm volatile("call __" #fn "_%c[size]"				\
 		     : "=a" (__ret_gu), "=r" (__val_gu),		\
 			ASM_CALL_CONSTRAINT				\
 		     : "0" (ptr), [size] "i" (sizeof(*(ptr))));		\
 	instrument_get_user(__val_gu);					\
-     /* Casts the variable inside __val_gu to the correct type and stores it inside
-     * the kernel destionation 'x'
-     * */                                               \
+	/* Casts the variable inside __val_gu to the correct type and stores it inside
+	* the kernel destionation 'x'
+	* */						\
 	(x) = (__force __typeof__(*(ptr))) __val_gu;			\
 	/* Integrity check that expects a 0 as value for __ret_gu (call successfull) */ \
 	__builtin_expect(__ret_gu, 0);					\
@@ -277,11 +277,11 @@ extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val
 
 /**
  * get_user - Get a simple variable from user space.
- * @x:   Variable to store result.
+ * @x:	 Variable to store result.
  * @ptr: Source address, in user space.
  *
  * Context: User context only. This function may sleep if pagefaults are
- *          enabled.
+ *	    enabled.
  *
  * This macro copies a single simple variable from user space to kernel
  * space.  It supports simple types like char and int, but not larger
@@ -299,11 +299,11 @@ extern int df_get_useru8(unsigned long long user_src, long unsigned int user_val
 
 /**
  * __get_user - Get a simple variable from user space, with less checking.
- * @x:   Variable to store result.
+ * @x:	 Variable to store result.
  * @ptr: Source address, in user space.
  *
  * Context: User context only. This function may sleep if pagefaults are
- *          enabled.
+ *	    enabled.
  *
  * This macro copies a single simple variable from user space to kernel
  * space.  It supports simple types like char and int, but not larger
@@ -379,11 +379,11 @@ extern void __put_user_nocheck_8(void);
 
 /**
  * put_user - Write a simple value into user space.
- * @x:   Value to copy to user space.
+ * @x:	 Value to copy to user space.
  * @ptr: Destination address, in user space.
  *
  * Context: User context only. This function may sleep if pagefaults are
- *          enabled.
+ *	    enabled.
  *
  * This macro copies a single simple value from kernel space to user
  * space.  It supports simple types like char and int, but not larger
@@ -398,11 +398,11 @@ extern void __put_user_nocheck_8(void);
 
 /**
  * __put_user - Write a simple value into user space, with less checking.
- * @x:   Value to copy to user space.
+ * @x:	 Value to copy to user space.
  * @ptr: Destination address, in user space.
  *
  * Context: User context only. This function may sleep if pagefaults are
- *          enabled.
+ *	    enabled.
  *
  * This macro copies a single simple value from kernel space to user
  * space.  It supports simple types like char and int, but not larger

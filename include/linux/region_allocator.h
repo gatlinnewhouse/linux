@@ -19,8 +19,8 @@ struct region_allocator {
 
 #define ASSERT_ALLOCATION_FAILURE(region, message) { \
   if (unlikely(!region)) {                           \
-         printk(KERN_EMERG message);                 \
-         return 0;                                   \
+	 printk(KERN_EMERG message);                 \
+	 return 0;                                   \
   }                                                  \
 }
 
@@ -176,7 +176,7 @@ void dump_region_stats(int *mregions, int *dregions, int *dkmalloc, size_t *dkma
 }
 // Called by DFCACHE's memory range subsistem to initialize regions used to allocate memory ranges
 #define initialize_regions() init_region_allocator(DF_CUR_METADATA_REGION_ALLOCATOR, METADATA) &&  \
-                             init_region_allocator(DF_CUR_STORAGE_REGION_ALLOCATOR, STORAGE)
+			     init_region_allocator(DF_CUR_STORAGE_REGION_ALLOCATOR, STORAGE)
 
 #else
 noinline void reset_regions(void);

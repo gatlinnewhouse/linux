@@ -319,9 +319,9 @@ static __always_inline void __shrink_region(struct region_allocator *allocator)
 			// Decrement ref on each page and remove the page if necessary.
 #if 0
 	 page = (void *) (list_entry(item, struct mem_pin, pin_link)->ptr);
-         if (put_page_testzero(page)) {
-            free_the_page(page, compound_order(page));
-         }
+	 if (put_page_testzero(page)) {
+	    free_the_page(page, compound_order(page));
+	 }
 #endif
 			frag = (list_entry(item, struct mem_pin, pin_link)->ptr);
 			page_frag_free(frag);
@@ -376,9 +376,9 @@ void shrink_region(struct region_allocator *allocator)
     // mem_range flag).
     if (unlikely(!(allocator->initialized))){
 #ifdef REGION_CHECKS_EXTENDED
-        printk("[Task %s] [K %llx] shrink_region: Error allocator is not initialized\n", current->comm, current->flags & PF_KTHREAD);
+	printk("[Task %s] [K %llx] shrink_region: Error allocator is not initialized\n", current->comm, current->flags & PF_KTHREAD);
 #endif
-        return;
+	return;
     }
 #endif
 	__shrink_region(allocator);
@@ -387,7 +387,7 @@ void shrink_region(struct region_allocator *allocator)
 void destroy_region(struct region_allocator *allocator)
 {
 	/* We assume that the process will call at least one copy from user so 
-        it has at least the first region initialized. */
+	it has at least the first region initialized. */
 	if (unlikely(!(allocator->initialized))) {
 #ifdef REGION_CHECKS_EXTENDED
 		printk("[Task %s] [K %llx] destroy_region: Error allocator is not initialized\n",

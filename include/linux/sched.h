@@ -1624,9 +1624,9 @@ struct task_struct {
 #endif
 
 #ifdef CONFIG_SAFEFETCH
-        struct df_prot_struct df_prot_struct_head;
+	struct df_prot_struct df_prot_struct_head;
 #ifdef SAFEFETCH_DEBUG
-        struct df_stats_struct df_stats;
+	struct df_stats_struct df_stats;
 #endif
 #endif
 
