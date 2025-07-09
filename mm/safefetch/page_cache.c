@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+// SPDX-License-Identifier: GPL-2.0
 #ifndef __PAGE_CACHE_C__
 #define __PAGE_CACHE_C__
 

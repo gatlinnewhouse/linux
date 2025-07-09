@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+// SPDX-License-Identifier: GPL-2.0
 //#include <linux/region_allocator.h>
 #include "page_cache.h"
 #include <linux/mem_range.h>
