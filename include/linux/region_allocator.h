@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __REGION_ALLOCATOR_H__
 #define __REGION_ALLOCATOR_H__
 

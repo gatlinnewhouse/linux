@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __SAFEFETCH_DEBUG_H__
 #define __SAFEFETCH_DEBUG_H__
 

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __MEM_RANGE_H__
 #define __MEM_RANGE_H__
 #include <linux/mm.h>

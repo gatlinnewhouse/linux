@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 // Include the data structures needed by the defense
 #include <linux/mem_range.h>
 #include "safefetch_debug.h"

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 #include <linux/mm.h>
 #include <linux/swap.h>
 #include "safefetch_debug.h"
