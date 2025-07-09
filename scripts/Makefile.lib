@@ -90,6 +90,10 @@ _rust_flags += $(if $(patsubst n%,, \
 	$(RUSTFLAGS_KCOV))
 endif
 
+ifeq ($(CONFIG_SAFEFETCH),y)
+_c_flags += $(CFLAGS_SAFEFETCH)
+endif
+
 #
 # Enable KCSAN flags except some files or directories we don't want to check
 # (depends on variables KCSAN_SANITIZE_obj.o, KCSAN_SANITIZE)
