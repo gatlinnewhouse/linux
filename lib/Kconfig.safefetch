@@ -4,17 +4,33 @@ config HAVE_ARCH_SAFEFETCH
 if HAVE_ARCH_SAFEFETCH
 
 config SAFEFETCH
-  bool "Safefetch : double fetch monitoring for copy_from_user/get_user calls"
-  select SAFEFETCH_STATIC_KEYS
-  default n
+	bool "Safefetch : double fetch monitoring for copy_from_user/get_user calls"
+	select SAFEFETCH_STATIC_KEYS
+	default n
+	help
+	  SAFEFETCH is a strategy for eliminating double-fetch bugs by
+	  caching user data in exchange for a small performance cost.
+	  SAFEFETCH creates per-syscall caches to persist user data
+	  and replay on subsequent calls.
 
 config SAFEFETCH_STATIC_KEYS
-  bool "Safefetch : static keys safefetch"
-  depends on SAFEFETCH
-  default y
+	bool "Safefetch : static keys safefetch"
+	depends on SAFEFETCH
+	default y
+	help
+	  Instrument SAFEFETCH protections through hooks which can be
+	  disabled through static keys, hooks are nop instructions
+	  otherwise. Enabling this option allows userspace to configure
+	  the protection scheme and enable/disable protections.
 
 config SAFEFETCH_DEBUG
-  bool "Safefetch : double fetch debugging layer"
-  default n
+	bool "Safefetch : double fetch debugging layer"
+	default n
+	help
+	  Debugging messages for SAFEFETCH detected double fetches in the
+	  kernel ring buffer. Used for testing the patchset. If
+	  SAFEFETCH_DEBUG_COLLECT_VULNERABILITIES is enabled, then
+	  report vulnerabilities. Other SAFEFETCH_DEBUG_* options will
+	  enable additional reporting.
 
 endif
